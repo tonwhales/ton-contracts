@@ -1,5 +1,3 @@
-"Asm.fif" include
-// automatically generated from `/Users/steve/Develop/steve-contracts/stdlib.fc` `./contracts/wallet.func` 
 PROGRAM{
   DECLPROC recv_internal
   DECLPROC recv_external
