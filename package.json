@@ -1,0 +1,11 @@
+{
+  "name": "steve-contracts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ex3ndr/steve-contracts.git",
+  "author": "Steve Korshakov <steve@korshakov.com>",
+  "license": "MIT",
+  "dependencies": {
+    "ton-compiler": "^0.6.0"
+  }
+}

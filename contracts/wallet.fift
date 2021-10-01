@@ -1,0 +1,62 @@
+// automatically generated from `./contracts/wallet.func` 
+DECLPROC recv_internal
+DECLPROC recv_external
+85143 DECLMETHOD seqno
+78748 DECLMETHOD get_public_key
+recv_internal PROC:<{
+  DROP
+}>
+recv_external PROC:<{
+  9 PUSHPOW2
+  LDSLICEX
+  DUP
+  32 LDU
+  32 LDU
+  SWAP
+  NOW
+  LEQ
+  35 THROWIF
+  c4 PUSH
+  CTOS
+  32 LDU
+  256 LDU
+  ENDS
+  s3 s1 XCPU
+  EQUAL
+  33 THROWIFNOT
+  s0 s3 XCHG
+  HASHSU
+  s0 s4 s2 XC2PU
+  CHKSIGNU
+  34 THROWIFNOT
+  ACCEPT
+  s0 s2 XCHG
+  WHILE:<{
+    DUP
+    SREFS
+  }>DO<{
+    8 LDU
+    LDREF
+    s0 s2 XCHG
+    SENDRAWMSG
+  }>
+  ENDS
+  INC
+  NEWC
+  32 STU
+  256 STU
+  ENDC
+  c4 POP
+}>
+seqno PROC:<{
+  c4 PUSH
+  CTOS
+  32 PLDU
+}>
+get_public_key PROC:<{
+  c4 PUSH
+  CTOS
+  32 LDU
+  NIP
+  256 PLDU
+}>

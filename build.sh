@@ -1,0 +1,1 @@
+./node_modules/ton-compiler/bin/macos/func ./contracts/wallet.func > ./contracts/wallet.fift
