@@ -1,1 +1,1 @@
-./node_modules/ton-compiler/bin/macos/func ./contracts/wallet.func > ./contracts/wallet.fift
+./node_modules/ton-compiler/bin/macos/func -PS -o ./contracts/wallet.fift $(pwd)/stdlib.fc ./contracts/wallet.func
