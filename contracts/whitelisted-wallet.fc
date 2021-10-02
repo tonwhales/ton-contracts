@@ -29,8 +29,8 @@ _ check_destination(msg, wc, dest) inline_ref {
   dataSc.end_parse();
 
   ;; Read Message
+  var signature = in_msg~load_bits(512);
   var msgSc = in_msg;
-  var signature = msgSc~load_bits(512);
   int msg_seqno = msgSc~load_uint(32);
   
   ;; Check Input
