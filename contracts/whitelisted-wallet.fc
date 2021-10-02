@@ -38,7 +38,7 @@ _ check_destination(msg, wc, dest) inline_ref {
   var data_hash = slice_hash(in_msg);
   var restricted_ok = check_signature(data_hash, signature, stored_restricted_key);
   var master_ok = check_signature(data_hash, signature, stored_master_key);
-  if ( ~ (restricted_ok & master_ok)) {
+  if (( ~ restricted_ok) & ( ~ master_ok)) {
     throw(34);
   }
   var restrict = ~ master_ok;

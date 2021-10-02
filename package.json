@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@types/bn.js": "^5.1.0",
-    "ton": "^4.4.0",
+    "ton": "^4.5.0",
     "ton-compiler": "0.6.1",
     "ton-crypto": "^1.4.7"
   },

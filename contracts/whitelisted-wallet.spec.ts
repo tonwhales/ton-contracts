@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { Address, Cell, toNano, TonClient, Wallet } from 'ton';
+import { Address, Cell, CommonMessageInfo, Contract, createWalletTransferV1, InternalMessage, toNano, TonClient } from 'ton';
 import { mnemonicNew, mnemonicToWalletKey } from 'ton-crypto';
 import { contractAddress, ContractSource } from 'ton/dist/contracts/sources/ContractSource';
 import { openTestTreasure } from 'ton/dist/tests/openTestTreasure';
@@ -8,7 +8,7 @@ import { BN } from 'bn.js';
 
 export class RestrictedWalletCode implements ContractSource {
 
-    static create(opts: { masterKey: Buffer, restrictedKey: Buffer, workchain: number, restrictedAddress: Address }) {
+    static create(opts: { masterKey: Buffer, restrictedKey: Buffer, workchain: number, restrictedAddress: Address, src: string }) {
 
         // Resolve parameters
         let masterKey = opts.masterKey;
@@ -17,7 +17,7 @@ export class RestrictedWalletCode implements ContractSource {
         let restrictedAddress = opts.restrictedAddress;
 
         // Build initial code and data
-        let initialCode = Cell.fromBoc('b5ee9c720101070100a7000114ff00f4a413f4bcf2c80b010201200203020148040501c6f2ed44d0d31fd3ffd3ffd207d3ffd1258308d718d31f5117baf2a107f901547015f9105125f91066b0b392f222deb3f800069320d74a8e96d307d47f298e8630547143db3cde9302fb00926c21e2e83605d103a4c8cb1f12cbffcbffca07cbffc9ed54060004d0300011a0992fda89a1ae163f003202d0d3030178b0935f037fe0fa4031fa4030fa4402ba02bab0')[0];
+        let initialCode = Cell.fromBoc(opts.src)[0];
         let initialData = new Cell();
         initialData.bits.writeUint(0, 32); // SeqNo
         initialData.bits.writeBuffer(restrictedKey); // Restricted key
@@ -54,19 +54,33 @@ export class RestrictedWalletCode implements ContractSource {
     }
 }
 
+class RestrictedWalletContract implements Contract {
+    readonly address: Address;
+    readonly source: RestrictedWalletCode;
+    constructor(address: Address, source: RestrictedWalletCode) {
+        this.address = address;
+        this.source = source;
+    }
+}
+
 describe('whitelisted-wallet', () => {
     // it('should work', () => {
     //     let source = fs.readFileSync(__dirname + '/whitelisted-wallet.cell');
     //     console.warn(source.toString('hex'));
     // });
     it('should work', async () => {
+        let sourceBoc = fs.readFileSync(__dirname + '/whitelisted-wallet.cell');
+
         const client = new TonClient({ endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC' });
         let treasure = await openTestTreasure(client);
         let restrictedWallet = await client.createNewWallet({ workchain: 0 });
         let masterKey = await mnemonicToWalletKey(await mnemonicNew(24));
         let restrictedKey = await mnemonicToWalletKey(await mnemonicNew(24));
-        let source = RestrictedWalletCode.create({ masterKey: masterKey.publicKey, restrictedKey: restrictedKey.publicKey, workchain: 0, restrictedAddress: restrictedWallet.wallet.address });
+        let source = RestrictedWalletCode.create({ masterKey: masterKey.publicKey, restrictedKey: restrictedKey.publicKey, workchain: 0, restrictedAddress: restrictedWallet.wallet.address, src: sourceBoc.toString('hex') });
         let walletAddress = await contractAddress(source);
+        let contract = new RestrictedWalletContract(walletAddress, source);
+        console.warn('Initing ' + walletAddress.toFriendly());
+
 
         // Requirements
         expect((await client.getBalance(walletAddress)).toNumber()).toBe(0);
@@ -78,16 +92,24 @@ describe('whitelisted-wallet', () => {
             to: walletAddress,
             seqno: seqno,
             bounce: false,
-            value: toNano(0.01),
+            value: toNano(1),
             secretKey: treasure.secretKey
         });
         await awaitBalance(client, walletAddress, new BN(0));
 
-        // Wallet
-        // signingMessage = new WalletV1SigningMessage({
-        //     seqno: args.seqno,
-        //     sendMode: args.sendMode,
-        //     order: args.order
-        // });
+        // Send transfer via master key
+        let transfer = await createWalletTransferV1({
+            seqno: 0,
+            sendMode: 3,
+            order: new InternalMessage({
+                to: treasure.wallet.address,
+                value: toNano(0.05),
+                bounce: false,
+                body: new CommonMessageInfo()
+            }),
+            secretKey: masterKey.secretKey
+        });
+        await client.sendExternalMessage(contract, transfer);
+
     }, 60000);
 });
