@@ -1,0 +1,77 @@
+;; Simple Whitelisted Wallet Contract
+
+;; Parsing destination message
+_ check_destination(msg, wc, dest) inline_ref {
+  var cs = msg.begin_parse();
+  var flags = cs~load_uint(4);
+  if (flags & 8) {
+    ;; external messages are always valid
+    return true;
+  }
+  var (s_addr, d_addr) = (cs~load_msg_addr(), cs~load_msg_addr());
+  var (dest_wc, dest_addr) = parse_std_addr(d_addr);
+  return (dest_wc == wc) & (dest_addr == dest);
+}
+
+() recv_internal(slice in_msg) impure {
+  ;; do nothing for internal messages
+}
+
+() recv_external(slice in_msg) impure {
+
+  ;; Read Data
+  var dataSc = begin_parse(get_data());
+  var stored_seqno = dataSc~load_uint(32);
+  var stored_restricted_key = dataSc~load_uint(256);
+  var stored_master_key = dataSc~load_uint(256);
+  var restricted_address_wc = dataSc~load_int(8);
+  var restricted_address_hash = dataSc~load_uint(256);
+  dataSc.end_parse();
+
+  ;; Read Message
+  var msgSc = in_msg;
+  var signature = msgSc~load_bits(512);
+  int msg_seqno = msgSc~load_uint(32);
+  
+  ;; Check Input
+  throw_unless(33, msg_seqno == stored_seqno);
+  var data_hash = slice_hash(in_msg);
+  var restricted_ok = check_signature(data_hash, signature, stored_restricted_key);
+  var master_ok = check_signature(data_hash, signature, stored_master_key);
+  if ( ~ (restricted_ok & master_ok)) {
+    throw(34);
+  }
+  var restrict = ~ master_ok;
+
+  ;; Accept Message and spend gas
+  accept_message();
+
+  ;; Send messages
+  msgSc~touch();
+  while (msgSc.slice_refs()) {
+    var mode = msgSc~load_uint(8);
+    var msg = msgSc~load_ref();
+    var ok = true;
+    if (restrict) {
+      ok = check_destination(msg, restricted_address_wc, restricted_address_hash);
+    }
+    if (ok) {
+      send_raw_message(msg, mode);
+    }
+  }
+  msgSc.end_parse();
+
+  ;; Update Data
+  set_data(begin_cell()
+    .store_uint(stored_seqno + 1, 32)
+    .store_uint(stored_restricted_key, 256)
+    .store_uint(stored_master_key, 256)
+    .store_int(restricted_address_wc, 8)
+    .store_uint(restricted_address_hash, 256)
+    .end_cell()
+  );
+}
+
+int seqno() method_id {
+  return get_data().begin_parse().preload_uint(32);
+}
