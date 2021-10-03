@@ -10,10 +10,11 @@
     "build": "./build.sh"
   },
   "dependencies": {
+    "@openland/patterns": "^0.0.2",
     "@types/bn.js": "^5.1.0",
-    "ton": "^4.5.0",
+    "ton": "4.6.0",
     "ton-compiler": "0.6.1",
-    "ton-crypto": "^1.4.7"
+    "ton-crypto": "1.4.7"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",

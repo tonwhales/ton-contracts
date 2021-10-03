@@ -1096,6 +1096,11 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
+"@openland/patterns@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@openland/patterns/-/patterns-0.0.2.tgz#ada0417c4e72aeeb461bf9d8759ecd9ca1ebf51d"
+  integrity sha512-ttgJELwtG8cIER1JeWjkIMg3e+MlAL6n4wFPSNPoBCl+5t3G/HIz9kolvxBmN5/3RXEgh68NnePzGiUBaUHmRQ==
+
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.8.3.tgz#3802ddd21a50a949b6721ddd72da36e67e7f1b2d"
@@ -3170,7 +3175,7 @@ ton-compiler@0.6.1:
     arg "^5.0.1"
     tmp "^0.2.1"
 
-ton-crypto@1.4.7, ton-crypto@^1.4.7:
+ton-crypto@1.4.7:
   version "1.4.7"
   resolved "https://registry.yarnpkg.com/ton-crypto/-/ton-crypto-1.4.7.tgz#5a0c639641adde16dcdf9be2b8848eed9601daf1"
   integrity sha512-gYOk5SYHbzfmcfUvzjbIjx6fOXJB+GXOepzdC8dQfkIGbVu1BM9VamUg0NPyX5KzOQ4gufI2O7T2N//PaSxdmQ==
@@ -3178,10 +3183,10 @@ ton-crypto@1.4.7, ton-crypto@^1.4.7:
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-ton@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-4.5.0.tgz#a849b2058d641cc6f6a718109b15990b14ecb666"
-  integrity sha512-wDHVaGp5rZUzgXOGHp7mN5MdIumrxsJ8azKgAR6wSDRdYYjCqnSTS0RASEtTMhDutC9LYWsXWB44CmOawhMkhQ==
+ton@4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-4.6.0.tgz#495675a582efe80fc2a200ab790154d1315fb844"
+  integrity sha512-Cxzao6cB1cSBIdGkHDK9dQVRtKtWKPeDBTI1g0WTPp1LKyujGZAp9ebX0rQbt1ESZtnZBf9CQVB1DKKUzUXhPA==
   dependencies:
     bn.js "5.2.0"
     ethjs-unit "0.1.6"

@@ -43,6 +43,21 @@ _ check_destination(msg, wc, dest) inline_ref {
   }
   var restrict = ~ master_ok;
 
+  ;; Check restricted
+  if (restrict) {
+    var msgSc2 = msgSc;
+    msgSc2~touch();
+    while (msgSc2.slice_refs()) {
+      var mode = msgSc2~load_uint(8);
+      var msg = msgSc2~load_ref();
+      var ok = check_destination(msg, restricted_address_wc, restricted_address_hash);
+      if (~ ok) {
+        throw(35);
+      }
+    }
+    msgSc2.end_parse();
+  }
+
   ;; Accept Message and spend gas
   accept_message();
 
@@ -51,13 +66,7 @@ _ check_destination(msg, wc, dest) inline_ref {
   while (msgSc.slice_refs()) {
     var mode = msgSc~load_uint(8);
     var msg = msgSc~load_ref();
-    var ok = true;
-    if (restrict) {
-      ok = check_destination(msg, restricted_address_wc, restricted_address_hash);
-    }
-    if (ok) {
-      send_raw_message(msg, mode);
-    }
+    send_raw_message(msg, mode);
   }
   msgSc.end_parse();
 
