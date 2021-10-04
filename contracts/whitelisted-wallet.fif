@@ -1,9 +1,9 @@
 PROGRAM{
-  DECLPROC check_destination
+  DECLPROC check_restricted_destination
   DECLPROC recv_internal
   DECLPROC recv_external
   85143 DECLMETHOD seqno
-  check_destination PROCREF:<{
+  check_restricted_destination PROCREF:<{
     //  msg wc dest
     s0 s2 XCHG	//  dest wc msg
     CTOS	//  dest wc cs
@@ -13,7 +13,7 @@ PROGRAM{
     AND	//  dest wc cs _10
     IFJMP:<{	//  dest wc cs
       3 BLKDROP	// 
-      TRUE	//  _11
+      FALSE	//  _11
     }>	//  dest wc cs
     LDMSGADDR	//  dest wc _27 _26
     NIP	//  dest wc cs
@@ -70,40 +70,47 @@ PROGRAM{
         DUP	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2 msgSc2
         SREFS	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2 _53
       }>DO<{	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2
-        8 LDU	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc _110 _109
+        1 LDU	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc _121 _120
         NIP	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2
+        1 LDU	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc _123 _122
+        NIP	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2
+        6 LDU	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc mode_remaining msgSc2
+        SWAP	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2 mode_remaining
+        36 THROWIF
         LDREF	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msg msgSc2
         s1 s3 s7 XCPU2	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2 msg restricted_address_wc restricted_address_hash
-        check_destination INLINECALLDICT	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2 ok
-        NOT	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2 _63
+        check_restricted_destination INLINECALLDICT	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2 ok
+        NOT	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2 _73
         IF:<{	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2
           35 THROW
         }>	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2
       }>	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc2
       ENDS
     }>	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc
-    ACCEPT	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc
+    ACCEPT
+    COMMIT
+    s0 s4 XCHG	//  restricted_address_hash msgSc stored_restricted_key stored_master_key restricted_address_wc stored_seqno
+    INC	//  restricted_address_hash msgSc stored_restricted_key stored_master_key restricted_address_wc _80
+    NEWC	//  restricted_address_hash msgSc stored_restricted_key stored_master_key restricted_address_wc _80 _81
+    32 STU	//  restricted_address_hash msgSc stored_restricted_key stored_master_key restricted_address_wc _83
+    s1 s3 XCHG	//  restricted_address_hash msgSc restricted_address_wc stored_master_key stored_restricted_key _83
+    256 STU	//  restricted_address_hash msgSc restricted_address_wc stored_master_key _85
+    256 STU	//  restricted_address_hash msgSc restricted_address_wc _87
+    8 STI	//  restricted_address_hash msgSc _89
+    s1 s2 XCHG	//  msgSc restricted_address_hash _89
+    256 STU	//  msgSc _91
+    ENDC	//  msgSc _92
+    c4 POP	//  msgSc
     WHILE:<{
-      DUP	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msgSc
-      SREFS	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc _70
-    }>DO<{	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc
-      8 LDU	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc mode msgSc
-      LDREF	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc mode msg msgSc
-      s0 s2 XCHG	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc msg mode
+      DUP	//  msgSc msgSc
+      SREFS	//  msgSc _96
+    }>DO<{	//  msgSc
+      8 LDU	//  mode msgSc
+      LDREF	//  mode msg msgSc
+      s0 s2 XCHG	//  msgSc msg mode
       SENDRAWMSG
-    }>	//  restricted_address_hash stored_seqno stored_restricted_key stored_master_key restricted_address_wc msgSc
+    }>	//  msgSc
     ENDS
-    s0 s3 XCHG	//  restricted_address_hash restricted_address_wc stored_restricted_key stored_master_key stored_seqno
-    INC	//  restricted_address_hash restricted_address_wc stored_restricted_key stored_master_key _81
-    NEWC	//  restricted_address_hash restricted_address_wc stored_restricted_key stored_master_key _81 _82
-    32 STU	//  restricted_address_hash restricted_address_wc stored_restricted_key stored_master_key _84
-    s1 s2 XCHG	//  restricted_address_hash restricted_address_wc stored_master_key stored_restricted_key _84
-    256 STU	//  restricted_address_hash restricted_address_wc stored_master_key _86
-    256 STU	//  restricted_address_hash restricted_address_wc _88
-    8 STI	//  restricted_address_hash _90
-    256 STU	//  _92
-    ENDC	//  _93
-    c4 POP
   }>
   seqno PROC:<{
     // 
