@@ -1,0 +1,1 @@
+export { WhitelistedWalletSource } from './contracts/WhitelistedWalletSource';

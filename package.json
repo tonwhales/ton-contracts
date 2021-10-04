@@ -1,22 +1,26 @@
 {
   "name": "steve-contracts",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "repository": "https://github.com/ex3ndr/steve-contracts.git",
   "author": "Steve Korshakov <steve@korshakov.com>",
   "license": "MIT",
+  "files": [
+    "dist/**/*",
+    "contracts/**/*"
+  ],
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "build": "./build.sh"
   },
   "dependencies": {
     "@openland/patterns": "^0.0.2",
-    "@types/bn.js": "^5.1.0",
     "ton": "4.6.0",
     "ton-compiler": "0.6.1",
     "ton-crypto": "1.4.7"
   },
   "devDependencies": {
+    "@types/bn.js": "^5.1.0",
     "@babel/core": "^7.15.5",
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-typescript": "^7.15.0",

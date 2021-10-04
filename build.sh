@@ -1,3 +1,6 @@
+set -e
+
+# Build contracts
 ton-compiler --fift --input ./contracts/wallet.fc --output ./contracts/wallet.fif
 ton-compiler --input ./contracts/wallet.fc --output ./contracts/wallet.cell
 
@@ -6,3 +9,7 @@ ton-compiler --input ./contracts/simple-wallet-code.fc --output ./contracts/simp
 
 ton-compiler --fift --input ./contracts/whitelisted-wallet.fc --output ./contracts/whitelisted-wallet.fif
 ton-compiler --input ./contracts/whitelisted-wallet.fc --output ./contracts/whitelisted-wallet.cell
+
+# Build distributive
+rm -fr dist
+tsc --declaration

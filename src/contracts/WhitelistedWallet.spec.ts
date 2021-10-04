@@ -1,68 +1,18 @@
 import * as fs from 'fs';
-import { Address, Cell, toNano, TonClient } from 'ton';
-import { ContractSource } from 'ton/dist/contracts/sources/ContractSource';
+import { toNano, TonClient } from 'ton';
 import { openTestTreasure } from 'ton/dist/tests/openTestTreasure';
 import { awaitBalance } from 'ton/dist/tests/awaitBalance';
 import { BN } from 'bn.js';
 import { createWalletKey } from './tests/createWalletKey';
 import { delay } from '@openland/patterns';
+import { WhitelistedWalletSource } from '..';
 
-export class RestrictedWalletCode implements ContractSource {
-
-    static create(opts: { masterKey: Buffer, restrictedKey: Buffer, workchain: number, whitelistedAddress: Address, src: string }) {
-
-        // Resolve parameters
-        let masterKey = opts.masterKey;
-        let restrictedKey = opts.restrictedKey;
-        let workchain = opts.workchain;
-        let whitelistedAddress = opts.whitelistedAddress;
-
-        // Build initial code and data
-        let initialCode = Cell.fromBoc(opts.src)[0];
-        let initialData = new Cell();
-        initialData.bits.writeUint(0, 32); // SeqNo
-        initialData.bits.writeBuffer(restrictedKey); // Restricted key
-        initialData.bits.writeBuffer(masterKey); // Master key
-        initialData.bits.writeInt(whitelistedAddress.workChain, 8); // Workchain
-        initialData.bits.writeBuffer(whitelistedAddress.hash); // Address hash
-
-        return new RestrictedWalletCode({ masterKey, restrictedKey, whitelistedAddress, initialCode, initialData, workchain });
-    }
-
-    readonly masterKey: Buffer;
-    readonly restrictedKey: Buffer;
-    readonly whitelistedAddress: Address;
-    readonly initialCode: Cell;
-    readonly initialData: Cell;
-    readonly workchain: number;
-    readonly type = 'org.ton.wallets.whitelisted';
-    readonly walletVersion = 'v1';
-
-    private constructor(opts: {
-        masterKey: Buffer,
-        restrictedKey: Buffer,
-        workchain: number,
-        whitelistedAddress: Address,
-        initialCode: Cell
-        initialData: Cell
-    }) {
-        this.masterKey = opts.masterKey;
-        this.restrictedKey = opts.restrictedKey;
-        this.whitelistedAddress = opts.whitelistedAddress;
-        this.initialCode = opts.initialCode;
-        this.initialData = opts.initialData;
-        this.workchain = opts.workchain;
-        Object.freeze(this);
-    }
-}
-
-describe('whitelisted-wallet', () => {
-    // it('should work', () => {
-    //     let source = fs.readFileSync(__dirname + '/whitelisted-wallet.cell');
-    //     console.warn(source.toString('hex'));
-    // });
+describe('WhitelistedWallet', () => {
+    it('should conform to sources', () => {
+        let source = fs.readFileSync(__dirname + '/../../contracts/whitelisted-wallet.cell');
+        expect(WhitelistedWalletSource.SOURCE.toString('base64')).toEqual(source.toString('base64'));
+    });
     it('should work', async () => {
-        let sourceBoc = fs.readFileSync(__dirname + '/whitelisted-wallet.cell');
         const client = new TonClient({ endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC' });
 
         // Open Treasure
@@ -80,12 +30,11 @@ describe('whitelisted-wallet', () => {
         let restrictedKey = await createWalletKey();
 
         // Wallet
-        const wallet = await client.openWalletFromCustomContract(RestrictedWalletCode.create({
+        const wallet = await client.openWalletFromCustomContract(WhitelistedWalletSource.create({
             masterKey: masterKey.publicKey,
             restrictedKey: restrictedKey.publicKey,
             workchain: 0,
-            whitelistedAddress: whitelistedWallet.wallet.address,
-            src: sourceBoc.toString('hex')
+            whitelistedAddress: whitelistedWallet.wallet.address
         }));
 
         // Requirements
