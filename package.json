@@ -1,6 +1,6 @@
 {
   "name": "ton-contracts",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "main": "dist/index.js",
   "repository": "https://github.com/ex3ndr/ton-contracts.git",
   "author": "Steve Korshakov <steve@korshakov.com>",
