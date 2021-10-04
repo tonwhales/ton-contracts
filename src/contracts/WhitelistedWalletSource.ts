@@ -3,7 +3,7 @@ import { Address, Cell, ConfigStore, ContractSource } from "ton";
 export class WhitelistedWalletSource implements ContractSource {
 
     static readonly SOURCE = Buffer.from(
-        'te6ccgEBBwEAuAABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQHo8u1E0NMf0//T/9IH0//RBYMI1xgg0x9RF7ryoQH5AVRwJfkQUTX5EFEisfKiAbOOn1MA10rypZMg10qOkdMHAYEA/LDyZNRUMTfbPPKj6NHe+AAEpMjLHxPL/8v/ygcSy//J7VT4D5Mg10qW0wfUAvsA6NEGAATQMAARoJkv2omhrhY/ADIC0NMDAXiwk18DcOD6QDH6QDD6RAK6Arqw',
+        'te6ccgEBCgEA1AABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQT48u1E0NMf0//T/9IH0//TH9EGgwjXGCDTH1EYuvKhAfkBVHAm+RBRNvkQUSKx8qIBs46t+CNQB6GBBwi58mb4I1Nm10rypZMg10qOkdMHAYEA/LDyZNRUMUPbPPKj6NEG3vgABaTIyx8Uy/8Sy//KB8v/Essfye1U+A+KigYHCAkABNAwABGgmS/aiaGuFj8AMgLQ0wMBeLCTXwNw4PpAMfpAMPpEAroCurAABiDXSgAM0wfUAvsAAATo0Q==',
         'base64'
     );
 
@@ -23,6 +23,7 @@ export class WhitelistedWalletSource implements ContractSource {
         initialData.bits.writeBuffer(masterKey); // Master key
         initialData.bits.writeInt(whitelistedAddress.workChain, 8); // Workchain
         initialData.bits.writeBuffer(whitelistedAddress.hash); // Address hash
+        initialData.bits.writeUint(0, 32); // Last restricted tx
 
         return new WhitelistedWalletSource({ masterKey, restrictedKey, whitelistedAddress, initialCode, initialData, workchain });
     }

@@ -57,30 +57,19 @@ describe('WhitelistedWallet', () => {
         await wallet.transfer({
             seqno: 0,
             to: foreignWallet.wallet.address,
-            value: toNano(0.005),
+            value: toNano(0.001),
             secretKey: masterKey.secretKey,
             bounce: false
         });
         await awaitBalance(client, foreignWallet.wallet.address, new BN(0));
 
-        // Send transfer via restricted key
+        // Send transfer via invalid key
         expect(await wallet.getSeqNo()).toBe(1);
+        let initial = await client.getBalance(wallet.address);
         await wallet.transfer({
             seqno: 1,
             to: whitelistedWallet.wallet.address,
-            value: toNano(0.005),
-            secretKey: restrictedKey.secretKey,
-            bounce: false
-        });
-        await awaitBalance(client, whitelistedWallet.wallet.address, new BN(0));
-
-        // Send transfer via invalid key
-        expect(await wallet.getSeqNo()).toBe(2);
-        let initial = await client.getBalance(wallet.address);
-        await wallet.transfer({
-            seqno: 2,
-            to: whitelistedWallet.wallet.address,
-            value: toNano(0.005),
+            value: toNano(0.002),
             secretKey: invalidKey.secretKey,
             bounce: false
         });
@@ -88,12 +77,12 @@ describe('WhitelistedWallet', () => {
         expect((await client.getBalance(wallet.address)).eq(initial)).toBe(true);
 
         // Send transfer via restireted key to non-whitelisted
-        expect(await wallet.getSeqNo()).toBe(2);
+        expect(await wallet.getSeqNo()).toBe(1);
         initial = await client.getBalance(wallet.address);
         await wallet.transfer({
-            seqno: 2,
+            seqno: 1,
             to: foreignWallet.wallet.address,
-            value: toNano(0.005),
+            value: toNano(0.003),
             secretKey: restrictedKey.secretKey,
             bounce: false
         });
@@ -101,7 +90,31 @@ describe('WhitelistedWallet', () => {
         expect((await client.getBalance(wallet.address)).eq(initial)).toBe(true);
 
         // Result seqno
+        expect(await wallet.getSeqNo()).toBe(1);
+
+        // Send transfer via restricted key
+        expect(await wallet.getSeqNo()).toBe(1);
+        await wallet.transfer({
+            seqno: 1,
+            to: whitelistedWallet.wallet.address,
+            value: toNano(0.004),
+            secretKey: restrictedKey.secretKey,
+            bounce: false
+        });
+        await awaitBalance(client, whitelistedWallet.wallet.address, new BN(0));
+        
+        // If sent too often it must be ignored
+        initial = await client.getBalance(whitelistedWallet.wallet.address);
         expect(await wallet.getSeqNo()).toBe(2);
+        await wallet.transfer({
+            seqno: 2,
+            to: whitelistedWallet.wallet.address,
+            value: toNano(0.005),
+            secretKey: restrictedKey.secretKey,
+            bounce: false
+        });
+        await delay(15000);
+        expect((await client.getBalance(whitelistedWallet.wallet.address)).eq(initial)).toBe(true);
 
     }, 120000);
 });

@@ -26,6 +26,7 @@ _ check_restricted_destination(msg, wc, dest) inline_ref {
   var stored_master_key = dataSc~load_uint(256);
   var restricted_address_wc = dataSc~load_int(8);
   var restricted_address_hash = dataSc~load_uint(256);
+  var restricted_last_tx = dataSc~load_uint(32);
   dataSc.end_parse();
 
   ;; Read Message
@@ -43,13 +44,18 @@ _ check_restricted_destination(msg, wc, dest) inline_ref {
 
   ;; Check restricted
   if (restrict) {
+    throw_if(38, now() - restricted_last_tx < 60 * 30);
+    restricted_last_tx = now();
     var msgSc2 = msgSc;
     msgSc2~touch();
     throw_unless(37, msgSc2.slice_refs());
     while (msgSc2.slice_refs()) {
+
+      ;; Prohibit weird messages: destruction on zero, send all remaining balance, etc.
       var mode = msgSc2~load_uint(8);
       throw_if(36, mode & 0xfc);
 
+      ;; Check messages
       var msg = msgSc2~load_ref();
       var ok = check_restricted_destination(msg, restricted_address_wc, restricted_address_hash);
       throw_unless(35, ok);
@@ -67,6 +73,7 @@ _ check_restricted_destination(msg, wc, dest) inline_ref {
     .store_uint(stored_master_key, 256)
     .store_int(restricted_address_wc, 8)
     .store_uint(restricted_address_hash, 256)
+    .store_uint(restricted_last_tx, 32)
     .end_cell()
   );
 
