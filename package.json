@@ -1,8 +1,8 @@
 {
-  "name": "steve-contracts",
+  "name": "ton-contracts",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "repository": "https://github.com/ex3ndr/steve-contracts.git",
+  "repository": "https://github.com/ex3ndr/ton-contracts.git",
   "author": "Steve Korshakov <steve@korshakov.com>",
   "license": "MIT",
   "files": [
