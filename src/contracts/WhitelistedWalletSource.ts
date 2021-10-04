@@ -3,7 +3,7 @@ import { Address, Cell, ConfigStore, ContractSource } from "ton";
 export class WhitelistedWalletSource implements ContractSource {
 
     static readonly SOURCE = Buffer.from(
-        'te6ccgEBBwEAsQABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQHa8u1E0NMf0//T/9IH0//RBYMI1xgg0x9RF7ryoQH5AVRwJfkQUTX5EAKzIrOwkvIi3gGzjpcgkyDXSo6O0wcx1FQxN9s8s5LyI97o0d74AJMg10qW0wfUAvsA6NEDpMjLHxLL/8v/ygfL/8ntVAYABNAwABGgmS/aiaGuFj8AMgLQ0wMBeLCTXwN/4PpAMfpAMPpEAroCurA=',
+        'te6ccgEBBwEAuAABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQHo8u1E0NMf0//T/9IH0//RBYMI1xgg0x9RF7ryoQH5AVRwJfkQUTX5EFEisfKiAbOOn1MA10rypZMg10qOkdMHAYEA/LDyZNRUMTfbPPKj6NHe+AAEpMjLHxPL/8v/ygcSy//J7VT4D5Mg10qW0wfUAvsA6NEGAATQMAARoJkv2omhrhY/ADIC0NMDAXiwk18DcOD6QDH6QDD6RAK6Arqw',
         'base64'
     );
 
