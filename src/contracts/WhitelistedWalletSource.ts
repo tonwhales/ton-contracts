@@ -3,7 +3,7 @@ import { Address, Cell, ConfigStore, ContractSource } from "ton";
 export class WhitelistedWalletSource implements ContractSource {
 
     static readonly SOURCE = Buffer.from(
-        'te6ccgEBCgEA1AABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQT48u1E0NMf0//T/9IH0//TH9EGgwjXGCDTH1EYuvKhAfkBVHAm+RBRNvkQUSKx8qIBs46t+CNQB6GBBwi58mb4I1Nm10rypZMg10qOkdMHAYEA/LDyZNRUMUPbPPKj6NEG3vgABaTIyx8Uy/8Sy//KB8v/Essfye1U+A+KigYHCAkABNAwABGgmS/aiaGuFj8AMgLQ0wMBeLCTXwNw4PpAMfpAMPpEAroCurAABiDXSgAM0wfUAvsAAATo0Q==',
+        'te6ccgEBCAEA0wABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQL28u1E0NMf0//T//pAIfpEAtMf0QeDCNcYINMfURm68qEB+QFUcCf5EFE3+RBRIrHyogGzjq/4I1AIoYEHCLnyZvgjU3fXSvKlkyDXSo6R0wcBgQD8sPJk1FQxNNs88qPobCLRBZJsIeL4AASkyMsfE8v/y/8BzxYSyx/JBgcABNAwABGgmS/aiaGuFj8AMgLQ0wMBeLCTXwNw4PpAMfpAMPpEAroCurAAIu1U+A+TINdKltMH1AL7AOjR',
         'base64'
     );
 
@@ -21,8 +21,7 @@ export class WhitelistedWalletSource implements ContractSource {
         initialData.bits.writeUint(0, 32); // SeqNo
         initialData.bits.writeBuffer(restrictedKey); // Restricted key
         initialData.bits.writeBuffer(masterKey); // Master key
-        initialData.bits.writeInt(whitelistedAddress.workChain, 8); // Workchain
-        initialData.bits.writeBuffer(whitelistedAddress.hash); // Address hash
+        initialData.bits.writeAddress(whitelistedAddress); // Whitelisted address
         initialData.bits.writeUint(0, 32); // Last restricted tx
 
         return new WhitelistedWalletSource({ masterKey, restrictedKey, whitelistedAddress, initialCode, initialData, workchain });
