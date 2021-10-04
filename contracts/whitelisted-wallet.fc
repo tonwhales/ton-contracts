@@ -27,6 +27,7 @@ _ check_restricted_destination(msg, wc, dest) inline_ref {
   var restricted_address = dataSc~load_msg_addr();
   var (restricted_address_wc, restricted_address_hash) = parse_std_addr(restricted_address);
   var restricted_last_tx = dataSc~load_uint(32);
+  var dt = now();
   dataSc.end_parse();
 
   ;; Read Message
@@ -44,8 +45,8 @@ _ check_restricted_destination(msg, wc, dest) inline_ref {
 
   ;; Check restricted
   if (restrict) {
-    throw_if(38, now() - restricted_last_tx < 60 * 30);
-    restricted_last_tx = now();
+    throw_if(38, dt - restricted_last_tx < 1800);
+    restricted_last_tx = dt;
     var msgSc2 = msgSc;
     msgSc2~touch();
     throw_unless(37, msgSc2.slice_refs());
@@ -109,8 +110,9 @@ int restricted_cooldown() method_id {
   var restricted_last_tx = dataSc~load_uint(32);
   dataSc.end_parse();
   var dt = now();
-  if (dt - restricted_last_tx < 60 * 30) {
-    return dt - restricted_last_tx;
+  var delta = dt - restricted_last_tx;
+  if (delta < 1800) {
+    return 1800 - delta;
   } else {
     return 0;
   }

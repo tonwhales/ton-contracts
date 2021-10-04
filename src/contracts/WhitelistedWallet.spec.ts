@@ -62,6 +62,8 @@ describe('WhitelistedWallet', () => {
             bounce: false
         });
         await awaitBalance(client, foreignWallet.wallet.address, new BN(0));
+        let cooldown = parseInt((await client.callGetMethod(wallet.address, 'restricted_cooldown')).stack[0][1], 16);
+        expect(cooldown).toBe(0);
 
         // Send transfer via invalid key
         expect(await wallet.getSeqNo()).toBe(1);
@@ -75,6 +77,8 @@ describe('WhitelistedWallet', () => {
         });
         await delay(15000);
         expect((await client.getBalance(wallet.address)).eq(initial)).toBe(true);
+        cooldown = parseInt((await client.callGetMethod(wallet.address, 'restricted_cooldown')).stack[0][1], 16);
+        expect(cooldown).toBe(0);
 
         // Send transfer via restireted key to non-whitelisted
         expect(await wallet.getSeqNo()).toBe(1);
@@ -88,6 +92,8 @@ describe('WhitelistedWallet', () => {
         });
         await delay(15000);
         expect((await client.getBalance(wallet.address)).eq(initial)).toBe(true);
+        cooldown = parseInt((await client.callGetMethod(wallet.address, 'restricted_cooldown')).stack[0][1], 16);
+        expect(cooldown).toBe(0);
 
         // Result seqno
         expect(await wallet.getSeqNo()).toBe(1);
@@ -102,7 +108,10 @@ describe('WhitelistedWallet', () => {
             bounce: false
         });
         await awaitBalance(client, whitelistedWallet.wallet.address, new BN(0));
-        
+        cooldown = parseInt((await client.callGetMethod(wallet.address, 'restricted_cooldown')).stack[0][1], 16);
+        await delay(5000); // Race condition?
+        expect(cooldown).toBeGreaterThan(0);
+
         // If sent too often it must be ignored
         initial = await client.getBalance(whitelistedWallet.wallet.address);
         expect(await wallet.getSeqNo()).toBe(2);
@@ -115,6 +124,7 @@ describe('WhitelistedWallet', () => {
         });
         await delay(15000);
         expect((await client.getBalance(whitelistedWallet.wallet.address)).eq(initial)).toBe(true);
-
+        cooldown = parseInt((await client.callGetMethod(wallet.address, 'restricted_cooldown')).stack[0][1], 16);
+        expect(cooldown).toBeGreaterThan(0);
     }, 120000);
 });
