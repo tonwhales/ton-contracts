@@ -92,3 +92,21 @@ _ check_restricted_destination(msg, wc, dest) inline_ref {
 int seqno() method_id {
   return get_data().begin_parse().preload_uint(32);
 }
+
+int get_public_key() method_id {
+  var cs = get_data().begin_parse();
+  cs~load_uint(32);
+  return cs.preload_uint(256);
+}
+
+int restricted_cooldown() method_id {
+  var dataSc = begin_parse(get_data());
+  var stored_seqno = dataSc~load_uint(32);
+  var stored_restricted_key = dataSc~load_uint(256);
+  var stored_master_key = dataSc~load_uint(256);
+  var restricted_address = dataSc~load_msg_addr();
+  var (restricted_address_wc, restricted_address_hash) = parse_std_addr(restricted_address);
+  var restricted_last_tx = dataSc~load_uint(32);
+  dataSc.end_parse();
+  return now() - restricted_last_tx < 60 * 30;
+}

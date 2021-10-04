@@ -3,6 +3,8 @@ PROGRAM{
   DECLPROC recv_internal
   DECLPROC recv_external
   85143 DECLMETHOD seqno
+  78748 DECLMETHOD get_public_key
+  117551 DECLMETHOD restricted_cooldown
   check_restricted_destination PROCREF:<{
     //  msg wc dest
     s0 s2 XCHG	//  dest wc msg
@@ -124,5 +126,33 @@ PROGRAM{
     c4 PUSH	//  _0
     CTOS	//  _1
     32 PLDU	//  _3
+  }>
+  get_public_key PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  cs
+    32 LDU	//  _9 _8
+    NIP	//  cs
+    256 PLDU	//  _7
+  }>
+  restricted_cooldown PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  dataSc
+    32 LDU	//  _33 _32
+    NIP	//  dataSc
+    256 LDU	//  _35 _34
+    NIP	//  dataSc
+    256 LDU	//  _37 _36
+    NIP	//  dataSc
+    LDMSGADDR	//  _39 _38
+    NIP	//  dataSc
+    32 LDU	//  restricted_last_tx dataSc
+    ENDS
+    NOW	//  restricted_last_tx _26
+    SWAP	//  _26 restricted_last_tx
+    SUB	//  _27
+    1800 PUSHINT	//  _27 _30
+    LESS	//  _31
   }>
 }END>c
