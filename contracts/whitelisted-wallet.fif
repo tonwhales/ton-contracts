@@ -139,20 +139,26 @@ PROGRAM{
     // 
     c4 PUSH	//  _1
     CTOS	//  dataSc
-    32 LDU	//  _33 _32
+    32 LDU	//  _36 _35
     NIP	//  dataSc
-    256 LDU	//  _35 _34
+    256 LDU	//  _38 _37
     NIP	//  dataSc
-    256 LDU	//  _37 _36
+    256 LDU	//  _40 _39
     NIP	//  dataSc
-    LDMSGADDR	//  _39 _38
+    LDMSGADDR	//  _42 _41
     NIP	//  dataSc
     32 LDU	//  restricted_last_tx dataSc
     ENDS
-    NOW	//  restricted_last_tx _26
-    SWAP	//  _26 restricted_last_tx
-    SUB	//  _27
-    1800 PUSHINT	//  _27 _30
-    LESS	//  _31
+    NOW	//  restricted_last_tx dt
+    s0 s1 PUSH2	//  restricted_last_tx dt dt restricted_last_tx
+    SUB	//  restricted_last_tx dt _28
+    1800 PUSHINT	//  restricted_last_tx dt _28 _31
+    LESS	//  restricted_last_tx dt _32
+    IFJMP:<{	//  restricted_last_tx dt
+      SWAP	//  dt restricted_last_tx
+      SUB	//  _33
+    }>	//  restricted_last_tx dt
+    2DROP	// 
+    0 PUSHINT	//  _34=0
   }>
 }END>c

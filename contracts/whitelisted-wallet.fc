@@ -108,5 +108,10 @@ int restricted_cooldown() method_id {
   var (restricted_address_wc, restricted_address_hash) = parse_std_addr(restricted_address);
   var restricted_last_tx = dataSc~load_uint(32);
   dataSc.end_parse();
-  return now() - restricted_last_tx < 60 * 30;
+  var dt = now();
+  if (dt - restricted_last_tx < 60 * 30) {
+    return dt - restricted_last_tx;
+  } else {
+    return 0;
+  }
 }
