@@ -1,6 +1,6 @@
 {
   "name": "ton-contracts",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "repository": "https://github.com/ex3ndr/ton-contracts.git",
   "author": "Steve Korshakov <steve@korshakov.com>",
@@ -21,10 +21,10 @@
     "ton-crypto": "1.4.7"
   },
   "devDependencies": {
-    "@types/bn.js": "^5.1.0",
     "@babel/core": "^7.15.5",
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-typescript": "^7.15.0",
+    "@types/bn.js": "^5.1.0",
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.2",
     "babel-jest": "^27.2.4",
