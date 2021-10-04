@@ -11,7 +11,8 @@
   ],
   "scripts": {
     "test": "jest --runInBand",
-    "build": "./build.sh"
+    "build": "./build.sh",
+    "release": "yarn build && yarn test && yarn publish"
   },
   "dependencies": {
     "@openland/patterns": "^0.0.2",
