@@ -1,4 +1,4 @@
-import { Address, Cell, ContractSource } from "ton";
+import { Address, Cell, ConfigStore, ContractSource } from "ton";
 
 export class WhitelistedWalletSource implements ContractSource {
 
@@ -27,6 +27,16 @@ export class WhitelistedWalletSource implements ContractSource {
         return new WhitelistedWalletSource({ masterKey, restrictedKey, whitelistedAddress, initialCode, initialData, workchain });
     }
 
+    static restore(backup: string) {
+        const store = new ConfigStore(backup);
+        return WhitelistedWalletSource.create({
+            workchain: store.getInt('wc'),
+            restrictedKey: store.getBuffer('pk'),
+            masterKey: store.getBuffer('mk'),
+            whitelistedAddress: store.getAddress('wa')
+        });
+    }
+
     readonly masterKey: Buffer;
     readonly restrictedKey: Buffer;
     readonly whitelistedAddress: Address;
@@ -51,5 +61,14 @@ export class WhitelistedWalletSource implements ContractSource {
         this.initialData = opts.initialData;
         this.workchain = opts.workchain;
         Object.freeze(this);
+    }
+
+    backup = () => {
+        const config = new ConfigStore();
+        config.setInt('wc', this.workchain);
+        config.setBuffer('pk', this.restrictedKey);
+        config.setBuffer('mk', this.masterKey);
+        config.setAddress('wa', this.whitelistedAddress);
+        return config.save();
     }
 }
