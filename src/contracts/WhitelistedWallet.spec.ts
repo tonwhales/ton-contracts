@@ -12,6 +12,26 @@ describe('WhitelistedWallet', () => {
         let source = fs.readFileSync(__dirname + '/../../contracts/whitelisted-wallet.cell');
         expect(WhitelistedWalletSource.SOURCE.toString('base64')).toEqual(source.toString('base64'));
     });
+    it('should backup and restore', async () => {
+        let masterKey = await createWalletKey();
+        let restrictedKey = await createWalletKey();
+
+         // Whitelisted wallet key
+         const client = new TonClient({ endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC' });
+         let whitelistedWallet = await client.createNewWallet({ workchain: 0 });
+
+        const wallet = WhitelistedWalletSource.create({
+            masterKey: masterKey.publicKey,
+            restrictedKey: restrictedKey.publicKey,
+            workchain: 0,
+            whitelistedAddress: whitelistedWallet.wallet.address
+        });
+
+        let backup = wallet.backup();
+        WhitelistedWalletSource.restore(backup);
+        WhitelistedWalletSource.restore(backup);
+        WhitelistedWalletSource.restore(backup);
+    });
     it('should work', async () => {
         const client = new TonClient({ endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC' });
 
