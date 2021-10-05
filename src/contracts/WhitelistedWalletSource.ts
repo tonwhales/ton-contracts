@@ -71,4 +71,8 @@ export class WhitelistedWalletSource implements ContractSource {
         config.setAddress('wa', this.whitelistedAddress);
         return config.save();
     }
+
+    describe = () => {
+        return 'Whitelisted Restricted Wallet. Address: ' + this.whitelistedAddress.toFriendly() + ', Master Key: ' + this.masterKey.toString('hex')+ ', Default Key: ' + this.restrictedKey.toString('hex')
+    };
 }

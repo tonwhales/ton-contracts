@@ -3183,10 +3183,10 @@ ton-crypto@1.5.1:
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-ton@4.8.2:
-  version "4.8.2"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-4.8.2.tgz#c324be8c66ec7f3b399f7787446e66a64816ae1a"
-  integrity sha512-ikE8TZGPLdy9uzFRX4rv15s9KUbhszHaGS21ZUz053wb/bZlgHax9CB9hwS2lHpbs98sRvPV/LTpko8xPPrc1g==
+ton@4.9.0:
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-4.9.0.tgz#f7d973217b5d9a1b7013006cd218c505c399629b"
+  integrity sha512-yw3IgN20Rwv33Tvbr2MLQFWQdpssOvYI4//0CBbt5bVdHZ0JmY1PpxzvvNoM8ZRnFQKKWn0wz6Aq2Uz0gAaqlA==
   dependencies:
     bn.js "5.2.0"
     ethjs-unit "0.1.6"
