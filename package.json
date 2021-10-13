@@ -14,13 +14,17 @@
     "build": "./build.sh",
     "release": "yarn build && yarn test && yarn publish"
   },
+  "peerDependencies": {
+    "ton": "*",
+    "ton-crypto": "*"
+  },
   "dependencies": {
-    "@openland/patterns": "^0.0.2",
-    "ton": "4.9.1",
-    "ton-compiler": "0.6.1",
-    "ton-crypto": "1.5.1"
+    "@openland/patterns": "^0.0.2"
   },
   "devDependencies": {
+    "ton-compiler": "0.6.1",
+    "ton": "4.9.1",
+    "ton-crypto": "1.5.1",
     "@babel/core": "^7.15.5",
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-typescript": "^7.15.0",
