@@ -13,6 +13,10 @@ ton-compiler --fift --input ./contracts/whitelisted-wallet.fc --output ./contrac
 ton-compiler --input ./contracts/whitelisted-wallet.fc --output ./contracts/whitelisted-wallet.cell
 openssl base64 -A -in ./contracts/whitelisted-wallet.cell  -out ./contracts/whitelisted-wallet.cell.base64
 
+ton-compiler --fift --input ./contracts/logger.fc --output ./contracts/logger.fif
+ton-compiler --input ./contracts/logger.fc --output ./contracts/logger.cell
+openssl base64 -A -in ./contracts/logger.cell  -out ./contracts/logger.cell.base64
+
 # Build distributive
 rm -fr dist
 tsc --declaration

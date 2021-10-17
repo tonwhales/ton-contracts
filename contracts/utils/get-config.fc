@@ -1,0 +1,15 @@
+(slice) elector_address() {
+    var elector = config_param(1).begin_parse().preload_uint(256);
+    return begin_cell()
+           .store_uint(4, 3).store_uint(0xff, 8).store_uint(elector, 256)
+           .end_cell()
+           .begin_parse();
+}
+
+(slice) config_address() {
+    var config = config_param(0).begin_parse().preload_uint(256);
+    return begin_cell()
+           .store_uint(4, 3).store_uint(0xff, 8).store_uint(config, 256)
+           .end_cell()
+           .begin_parse();
+}

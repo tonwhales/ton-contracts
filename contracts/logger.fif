@@ -1,0 +1,38 @@
+PROGRAM{
+  DECLPROC advance_seqno
+  DECLPROC recv_internal
+  DECLPROC recv_external
+  85143 DECLMETHOD seqno
+  advance_seqno PROCREF:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    32 LDU	//  seqno ds
+    9 PUSHPOW2	//  seqno ds _9=512
+    LDUX	//  seqno _23 _22
+    DROP	//  seqno data
+    SWAP	//  data seqno
+    INC	//  data _12
+    NEWC	//  data _12 _13
+    32 STU	//  data _15
+    9 PUSHPOW2	//  data _15 _16=512
+    STUX	//  _17
+    ENDC	//  _18
+    c4 POP
+  }>
+  recv_internal PROC:<{
+    //  in_msg
+    DROP	// 
+  }>
+  recv_external PROC:<{
+    //  in_msg
+    DROP	// 
+    ACCEPT
+  }>
+  seqno PROC:<{
+    // 
+    c4 PUSH	//  _0
+    CTOS	//  _1
+    32 PLDU	//  _3
+  }>
+}END>c
