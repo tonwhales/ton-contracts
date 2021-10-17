@@ -17,6 +17,10 @@ ton-compiler --fift --input ./contracts/logger.fc --output ./contracts/logger.fi
 ton-compiler --input ./contracts/logger.fc --output ./contracts/logger.cell
 openssl base64 -A -in ./contracts/logger.cell  -out ./contracts/logger.cell.base64
 
+ton-compiler --fift --input ./contracts/validator-controller.fc --output ./contracts/validator-controller.fif
+ton-compiler --input ./contracts/validator-controller.fc --output ./contracts/validator-controller.cell
+openssl base64 -A -in ./contracts/validator-controller.cell  -out ./contracts/validator-controller.cell.base64
+
 # Build distributive
 rm -fr dist
 tsc --declaration

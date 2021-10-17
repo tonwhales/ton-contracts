@@ -1,0 +1,117 @@
+;; Validator Controller wallet
+
+() recv_internal(slice in_msg) impure {
+  ;; do nothing for internal messages
+}
+
+() recv_external(slice in_msg) impure {
+
+  ;; Read Data
+  var dataSc = begin_parse(get_data());
+  var stored_seqno = dataSc~load_uint(32);
+  var stored_restricted_key = dataSc~load_uint(256);
+  var stored_master_key = dataSc~load_uint(256);
+  var restricted_address = dataSc~load_msg_addr();
+  var (restricted_address_wc, restricted_address_hash) = parse_std_addr(restricted_address);
+  var restricted_last_tx = dataSc~load_uint(32);
+  var dt = now();
+  dataSc.end_parse();
+
+  ;; Read Message
+  var signature = in_msg~load_bits(512);
+  var msgSc = in_msg;
+  int msg_seqno = msgSc~load_uint(32);
+  
+  ;; Check Input
+  throw_unless(33, msg_seqno == stored_seqno);
+  var data_hash = slice_hash(in_msg);
+  var restricted_ok = check_signature(data_hash, signature, stored_restricted_key);
+  var master_ok = check_signature(data_hash, signature, stored_master_key);
+  throw_unless(34, restricted_ok | master_ok);
+  var restrict = ~ master_ok;
+
+  ;; Check restricted
+  if (restrict) {
+    throw_if(38, dt - restricted_last_tx < 300);
+    restricted_last_tx = dt;
+    var msgSc2 = msgSc;
+    msgSc2~touch();
+    throw_unless(37, msgSc2.slice_refs());
+    while (msgSc2.slice_refs()) {
+
+      ;; Prohibit weird messages: destruction on zero, send all remaining balance, etc.
+      var mode = msgSc2~load_uint(8);
+      throw_if(36, mode & 0xfc);
+
+      ;; Parse message
+      var msg = msgSc2~load_ref();
+      var cs = msg.begin_parse();
+      var flags = cs~load_uint(4);
+      var (s_addr, d_addr) = (cs~load_msg_addr(), cs~load_msg_addr());
+      var (dest_wc, dest_addr) = parse_std_addr(d_addr);
+      var grams = cs~load_grams();
+      var tail = cs~load_uint(1 + 4 + 4 + 64 + 32 + 1 + 1);
+      var op = cs~load_uint(32);
+      
+      ;; Check message
+      throw_if(35, flags & 8); ;; external messages are never valid
+      throw_unless(35, (dest_wc == restricted_address_wc) & (dest_addr == restricted_address_hash)); ;; Check destination
+      throw_if(35, tail); ;; All tail flags must be zero
+      throw_if(35, (op != 0x4e73744b) & (op != 0x47657424)); ;; Allow only new stake and recover stake
+    }
+    msgSc2.end_parse();
+  }
+
+  ;; Accept Message and spend gas
+  accept_message();
+
+  ;; Update Data
+  set_data(begin_cell()
+    .store_uint(stored_seqno + 1, 32)
+    .store_uint(stored_restricted_key, 256)
+    .store_uint(stored_master_key, 256)
+    .store_slice(restricted_address)
+    .store_uint(restricted_last_tx, 32)
+    .end_cell()
+  );
+
+  ;; Commit transaction
+  commit();
+
+  ;; Send messages
+  msgSc~touch();
+  while (msgSc.slice_refs()) {
+    var mode = msgSc~load_uint(8);
+    var msg = msgSc~load_ref();
+    send_raw_message(msg, mode);
+  }
+  msgSc.end_parse();
+}
+
+int seqno() method_id {
+  return get_data().begin_parse().preload_uint(32);
+}
+
+int get_public_key() method_id {
+  var cs = get_data().begin_parse();
+  cs~load_uint(32);
+  return cs.preload_uint(256);
+}
+
+int restricted_cooldown() method_id {
+  var dataSc = begin_parse(get_data());
+  var stored_seqno = dataSc~load_uint(32);
+  var stored_restricted_key = dataSc~load_uint(256);
+  var stored_master_key = dataSc~load_uint(256);
+  var restricted_address = dataSc~load_msg_addr();
+  var (restricted_address_wc, restricted_address_hash) = parse_std_addr(restricted_address);
+  var restricted_last_tx = dataSc~load_uint(32);
+  dataSc.end_parse();
+  var dt = now();
+  var delta = dt - restricted_last_tx;
+  if (delta < 300) {
+    return 300 - delta;
+  } else {
+    return 0;
+  }
+}

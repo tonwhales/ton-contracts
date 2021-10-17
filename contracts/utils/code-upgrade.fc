@@ -1,3 +1,0 @@
-() try_upgrade(slice in_msg, slice publicKey) inline {
-    
-}
