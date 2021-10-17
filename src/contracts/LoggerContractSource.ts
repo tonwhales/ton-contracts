@@ -3,7 +3,7 @@ import { Cell, ConfigStore, ContractSource } from "ton";
 export class LoggerContractSource implements ContractSource {
 
     static readonly SOURCE = Buffer.from(
-        'te6ccgEBBgEALAABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQAI8jD4AAAE0DAAEaCZL9qJoa4WPw==',
+        'te6ccgEBBgEAdgABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQBq8vkB7UTQ0x+DCNcY9AQwUzCDB/QOb6ExkvIA3nHIywBARIMH9EP4AAGkyMsfWM8W9ADJ7VQANtAw7UTQ0x+DCNcY9AQwAqTIyx8Bzxb0AMntVAARoJkv2omhrhY/',
         'base64'
     );
 
@@ -21,7 +21,9 @@ export class LoggerContractSource implements ContractSource {
         // Build initial code and data
         let initialCode = Cell.fromBoc(LoggerContractSource.SOURCE)[0];
         let initialData = new Cell();
+        initialData.bits.writeUint(0, 32);
         initialData.bits.writeBuffer(opts.seed);
+        initialData.bits.writeBit(0);
 
         return new LoggerContractSource({ initialCode, initialData, workchain, seed });
     }

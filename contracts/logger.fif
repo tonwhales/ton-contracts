@@ -1,33 +1,61 @@
 PROGRAM{
-  DECLPROC advance_seqno
   DECLPROC recv_internal
   DECLPROC recv_external
   85143 DECLMETHOD seqno
-  advance_seqno PROCREF:<{
-    // 
-    c4 PUSH	//  _1
-    CTOS	//  ds
-    32 LDU	//  seqno ds
-    9 PUSHPOW2	//  seqno ds _9=512
-    LDUX	//  seqno _23 _22
-    DROP	//  seqno data
-    SWAP	//  data seqno
-    INC	//  data _12
-    NEWC	//  data _12 _13
-    32 STU	//  data _15
-    9 PUSHPOW2	//  data _15 _16=512
-    STUX	//  _17
-    ENDC	//  _18
-    c4 POP
-  }>
   recv_internal PROC:<{
     //  in_msg
     DROP	// 
+    c4 PUSH	//  _2
+    CTOS	//  ds
+    32 LDU	//  seqno ds
+    9 PUSHPOW2	//  seqno ds _10=512
+    LDSLICEX	//  seqno data ds
+    LDDICT	//  seqno data _29 _28
+    DROP	//  seqno data received
+    s0 s2 XCHG	//  received data seqno
+    INC	//  received data _16
+    NEWC	//  received data _16 _17
+    32 STU	//  received data _19
+    SWAP	//  received _19 data
+    STSLICER	//  received _20
+    STDICT	//  _21
+    ENDC	//  _22
+    c4 POP
   }>
   recv_external PROC:<{
     //  in_msg
-    DROP	// 
+    HASHSU	//  hash
+    c4 PUSH	//  hash _4
+    CTOS	//  hash ds
+    32 LDU	//  hash seqno ds
+    9 PUSHPOW2	//  hash seqno ds _12=512
+    LDSLICEX	//  hash seqno data ds
+    LDDICT	//  hash seqno data _45 _44
+    DROP	//  hash seqno data received
+    s3 s0 PUSH2
+    8 PUSHPOW2	//  hash seqno data received hash received _19=256
+    DICTUGET
+    NULLSWAPIFNOT	//  hash seqno data received _46 _47
+    NIP	//  hash seqno data received found
+    IF:<{	//  hash seqno data received
+      0 THROW
+    }>	//  hash seqno data received
+    1 PUSHINT	//  hash seqno data received _24=1
+    NEWC	//  hash seqno data received _24=1 _25
+    1 STU	//  hash seqno data received _27
+    s0 s4 s4 XCHG3
+    8 PUSHPOW2	//  data seqno _27 hash received _28=256
+    DICTUSETB	//  data seqno received
     ACCEPT
+    SWAP	//  data received seqno
+    INC	//  data received _32
+    NEWC	//  data received _32 _33
+    32 STU	//  data received _35
+    ROT	//  received _35 data
+    STSLICER	//  received _36
+    STDICT	//  _37
+    ENDC	//  _38
+    c4 POP
   }>
   seqno PROC:<{
     // 
