@@ -33,7 +33,6 @@
   ;; Check restricted
   if (restrict) {
     throw_if(38, dt - restricted_last_tx < 300);
-    restricted_last_tx = dt;
     var msgSc2 = msgSc;
     msgSc2~touch();
     throw_unless(37, msgSc2.slice_refs());
@@ -53,14 +52,31 @@
       var tail = cs~load_uint(1 + 4 + 4 + 64 + 32 + 1 + 1);
       var op = cs~load_uint(32);
       
-      ;; Check message
-      throw_if(35, flags & 8); ;; external messages are never valid
+      ;; Check basic flags
+      throw_unless(35, flags == 2); ;; first but = 0, ihrDisabled=0, bounce=1, bounced=0
+      ;; throw_if(35, flags & 8); ;; external messages are never valid
       throw_unless(35, (dest_wc == restricted_address_wc) & (dest_addr == restricted_address_hash)); ;; Check destination
       throw_if(35, tail); ;; All tail flags must be zero
-      throw_if(35, (op != 0x4e73744b) & (op != 0x47657424)); ;; Allow only new stake and recover stake
+
+      ;; Check specific messages
+      if (op == 0x4e73744b) {
+        ;; Check new stake
+      } elseif (op == 0x47657424) {
+        ;; Check recover stake
+      } elseif (op == 0x52674370) {
+        ;; Check new complaint
+      } elseif (op == 0x56744370) {
+        ;; Check vote for complaint
+      } else {
+        ;; Unsupported message
+        throw(35);  
+      }
     }
     msgSc2.end_parse();
   }
+
+  ;; Update last transaction time
+  restricted_last_tx = dt;
 
   ;; Accept Message and spend gas
   accept_message();
@@ -93,9 +109,7 @@ int seqno() method_id {
 }
 
 int get_public_key() method_id {
-  var cs = get_data().begin_parse();
-  cs~load_uint(32);
-  return cs.preload_uint(256);
+  return get_data().begin_parse().skip_bits(32).preload_uint(256);
 }
 
 int restricted_cooldown() method_id {
@@ -109,9 +123,5 @@ int restricted_cooldown() method_id {
   dataSc.end_parse();
   var dt = now();
   var delta = dt - restricted_last_tx;
-  if (delta < 300) {
-    return 300 - delta;
-  } else {
-    return 0;
-  }
+  return max(300 - delta, 0);
 }

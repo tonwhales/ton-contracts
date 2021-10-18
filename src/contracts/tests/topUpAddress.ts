@@ -13,5 +13,5 @@ export async function topUpAddress(client: TonClient, address: Address, amount: 
         value: amount,
         secretKey: treasure.secretKey
     });
-    await awaitBalance(client, address, new BN(0));
+    await awaitBalance(client, address, amount);
 }
