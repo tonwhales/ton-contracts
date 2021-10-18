@@ -81,16 +81,14 @@ PROGRAM{
         1 EQINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body cs _125
         IF:<{	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body cs
           NIP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail cs
-          LDREF	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail _126 cs
-          SWAP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail cs _126
-          CTOS	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail cs body
-          SWAP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body cs
+          LDREF	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail external_body cs
           ENDS
+          CTOS	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body
         }>ELSE<{
           DROP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body
         }>
-        32 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail op body
-        ENDS
+        32 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail _232 _231
+        DROP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail op
         s0 s7 XCHG	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail flag_header
         35 THROWIF
         s0 s5 XCHG	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail flag_bounce flag_bounced dest_addr dest_wc flag_ihr_disabled

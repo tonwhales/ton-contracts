@@ -36,6 +36,7 @@
     var msgSc2 = msgSc;
     msgSc2~touch();
     throw_unless(37, msgSc2.slice_refs());
+
     while (msgSc2.slice_refs()) {
 
       ;; Prohibit weird messages: destruction on zero, send all remaining balance, etc.
@@ -58,11 +59,11 @@
       var external_body = cs~load_uint(1);
       var body = cs;
       if (external_body == 1) {
-        body = cs~load_ref().begin_parse();
+        var external_body = cs~load_ref();
         cs.end_parse();
+        body = external_body.begin_parse();
       }
       var op = body~load_uint(32);
-      body.end_parse();
       
       ;; Check basic flags
       throw_if(35, flag_header);
