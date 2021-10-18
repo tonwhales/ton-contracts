@@ -6,6 +6,7 @@ import { openTestTreasure } from "ton/dist/tests/openTestTreasure";
 export async function topUpAddress(client: TonClient, address: Address, amount: BN) {
     let treasure = await openTestTreasure(client);
     const seqno = await treasure.wallet.getSeqNo();
+    const initial = (await client.getBalance(address));
     await treasure.wallet.transfer({
         to: address,
         seqno: seqno,
@@ -13,5 +14,5 @@ export async function topUpAddress(client: TonClient, address: Address, amount: 
         value: amount,
         secretKey: treasure.secretKey
     });
-    await awaitBalance(client, address, amount);
+    await awaitBalance(client, address, initial);
 }
