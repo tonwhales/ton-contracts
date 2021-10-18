@@ -45,19 +45,30 @@
       ;; Parse message
       var msg = msgSc2~load_ref();
       var cs = msg.begin_parse();
-      var flags = cs~load_uint(4);
+      var flag_header = cs~load_uint(1);
+      var flag_ihr_disabled = cs~load_uint(1);
+      var flag_bounce = cs~load_uint(1);
+      var flag_bounced = cs~load_uint(1);
       var (s_addr, d_addr) = (cs~load_msg_addr(), cs~load_msg_addr());
       var (dest_wc, dest_addr) = parse_std_addr(d_addr);
       var grams = cs~load_grams();
-      var tail = cs~load_uint(1 + 4 + 4 + 64 + 32 + 1 + 1);
-      var op = cs~load_uint(32);
-      cs.end_parse();
+      var tail = cs~load_uint(1 + 4 + 4 + 64 + 32 + 1);
+
+      ;; Load body
+      var external_body = cs~load_uint(1);
+      var body = cs;
+      if (external_body == 1) {
+        body = cs~load_ref().begin_parse();
+        cs.end_parse();
+      }
+      var op = body~load_uint(32);
+      body.end_parse();
       
       ;; Check basic flags
-      throw_if(35, flags & 1);     ;; header bit == 0
-      throw_unless(35, flags & 2); ;; ihrDisabled=1
-      throw_unless(35, flags & 4); ;; bounce=1
-      throw_if(35, flags & 8);     ;; bounced=0
+      throw_if(35, flag_header);
+      throw_unless(35, flag_ihr_disabled);
+      throw_unless(35, flag_bounce);
+      throw_if(35, flag_bounced);
 
       ;; Check destination
       throw_unless(35, (dest_wc == restricted_address_wc) & (dest_addr == restricted_address_hash));
@@ -69,7 +80,6 @@
       ;; * createdLt = 64 bits zero
       ;; * createdAt = 32 bits zero
       ;; * CommonMessageInfo.initState = 1 bit zero
-      ;; * CommonMessageInfo.bodyPrefix = 1 bit zero (body is inlined in current cell)
       throw_if(35, tail);
 
       ;; Check specific messages

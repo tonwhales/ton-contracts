@@ -63,56 +63,63 @@ PROGRAM{
         LDREF	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msg msgSc2
         SWAP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 msg
         CTOS	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 cs
-        4 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags cs
-        LDMSGADDR	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags _199 _198
-        NIP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags cs
-        LDMSGADDR	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags d_addr cs
-        SWAP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags cs d_addr
-        REWRITESTDADDR	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags cs dest_wc dest_addr
-        s0 s2 XCHG	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc cs
-        LDGRAMS	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc _205 _204
-        NIP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc cs
-        107 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc tail cs
-        32 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc tail op cs
+        1 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header cs
+        1 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled cs
+        1 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce cs
+        1 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced cs
+        LDMSGADDR	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced _218 _217
+        NIP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced cs
+        LDMSGADDR	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced d_addr cs
+        SWAP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced cs d_addr
+        REWRITESTDADDR	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced cs dest_wc dest_addr
+        s0 s2 XCHG	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc cs
+        LDGRAMS	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc _224 _223
+        NIP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc cs
+        106 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail cs
+        1 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail external_body cs
+        s0 s1 PUXC	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body cs external_body
+        1 EQINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body cs _125
+        IF:<{	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body cs
+          NIP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail cs
+          LDREF	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail _126 cs
+          SWAP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail cs _126
+          CTOS	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail cs body
+          SWAP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body cs
+          ENDS
+        }>ELSE<{
+          DROP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail body
+        }>
+        32 LDU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flag_header flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail op body
         ENDS
-        s4 PUSH
-        1 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc tail op flags _115=1
-        AND	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc tail op _116
+        s0 s7 XCHG	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op flag_ihr_disabled flag_bounce flag_bounced dest_addr dest_wc tail flag_header
         35 THROWIF
-        s4 PUSH
-        2 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc tail op flags _119=2
-        AND	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc tail op _120
+        s0 s5 XCHG	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail flag_bounce flag_bounced dest_addr dest_wc flag_ihr_disabled
         35 THROWIFNOT
-        s4 PUSH
-        4 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc tail op flags _123=4
-        AND	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 flags dest_addr dest_wc tail op _124
+        s0 s3 XCHG	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail dest_wc flag_bounced dest_addr flag_bounce
         35 THROWIFNOT
-        s0 s4 XCHG
-        8 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op dest_addr dest_wc tail flags _127=8
-        AND	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op dest_addr dest_wc tail _128
+        SWAP	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail dest_wc dest_addr flag_bounced
         35 THROWIF
-        s1 s6 XCPU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op dest_addr tail dest_wc restricted_address_wc
-        EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op dest_addr tail _131
-        s2 s7 XCPU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _131 tail dest_addr restricted_address_hash
-        EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _131 tail _132
-        s1 s2 XCHG	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail _131 _132
-        AND	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail _133
+        s1 s6 XCPU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail dest_addr dest_wc restricted_address_wc
+        EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail dest_addr _144
+        s1 s7 XCPU	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail _144 dest_addr restricted_address_hash
+        EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail _144 _145
+        AND	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op tail _146
         35 THROWIFNOT
         35 THROWIF
         DUP
-        1316189259 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op op _137=1316189259
-        EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _138
+        1316189259 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op op _150=1316189259
+        EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _151
         IFNOT:<{	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op
           DUP
-          1197831204 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op op _139=1197831204
-          EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _140
+          1197831204 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op op _152=1197831204
+          EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _153
           IFNOT:<{	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op
             DUP
-            1382499184 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op op _141=1382499184
-            EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _142
+            1382499184 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op op _154=1382499184
+            EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _155
             IFNOT:<{	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op
-              1450460016 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _143=1450460016
-              EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 _144
+              1450460016 PUSHINT	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 op _156=1450460016
+              EQUAL	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2 _157
               IFNOT:<{	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2
                 35 THROW
               }>	//  dt stored_seqno stored_restricted_key stored_master_key restricted_address restricted_address_hash restricted_address_wc msgSc msgSc2
@@ -133,22 +140,22 @@ PROGRAM{
     }>	//  restricted_last_tx stored_seqno stored_restricted_key stored_master_key restricted_address msgSc
     ACCEPT
     s0 s4 XCHG	//  restricted_last_tx msgSc stored_restricted_key stored_master_key restricted_address stored_seqno
-    INC	//  restricted_last_tx msgSc stored_restricted_key stored_master_key restricted_address _150
-    NEWC	//  restricted_last_tx msgSc stored_restricted_key stored_master_key restricted_address _150 _151
-    32 STU	//  restricted_last_tx msgSc stored_restricted_key stored_master_key restricted_address _153
-    s1 s3 XCHG	//  restricted_last_tx msgSc restricted_address stored_master_key stored_restricted_key _153
-    256 STU	//  restricted_last_tx msgSc restricted_address stored_master_key _155
-    256 STU	//  restricted_last_tx msgSc restricted_address _157
-    SWAP	//  restricted_last_tx msgSc _157 restricted_address
-    STSLICER	//  restricted_last_tx msgSc _158
-    s1 s2 XCHG	//  msgSc restricted_last_tx _158
-    32 STU	//  msgSc _160
-    ENDC	//  msgSc _161
+    INC	//  restricted_last_tx msgSc stored_restricted_key stored_master_key restricted_address _163
+    NEWC	//  restricted_last_tx msgSc stored_restricted_key stored_master_key restricted_address _163 _164
+    32 STU	//  restricted_last_tx msgSc stored_restricted_key stored_master_key restricted_address _166
+    s1 s3 XCHG	//  restricted_last_tx msgSc restricted_address stored_master_key stored_restricted_key _166
+    256 STU	//  restricted_last_tx msgSc restricted_address stored_master_key _168
+    256 STU	//  restricted_last_tx msgSc restricted_address _170
+    SWAP	//  restricted_last_tx msgSc _170 restricted_address
+    STSLICER	//  restricted_last_tx msgSc _171
+    s1 s2 XCHG	//  msgSc restricted_last_tx _171
+    32 STU	//  msgSc _173
+    ENDC	//  msgSc _174
     c4 POP
     COMMIT	//  msgSc
     WHILE:<{
       DUP	//  msgSc msgSc
-      SREFS	//  msgSc _166
+      SREFS	//  msgSc _179
     }>DO<{	//  msgSc
       8 LDU	//  mode msgSc
       LDREF	//  mode msg msgSc

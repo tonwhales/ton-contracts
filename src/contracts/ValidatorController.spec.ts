@@ -106,6 +106,33 @@ describe('ValidatorController', () => {
         expect(cooldown).toBeGreaterThan(0);
     }, 120000);
 
+    it('should transfer via restricted key to whitelisted with large payload', async () => {
+        let state = await createNewWallets();
+        expect(await state.wallet.getSeqNo()).toBe(0);
+        await state.wallet.transfer({
+            seqno: 0,
+            to: state.whitelistedWallet.wallet.address,
+            value: toNano(0.001),
+            secretKey: state.restrictedKey.secretKey,
+            bounce: true, // Required
+            payload: Buffer.from([
+                0x52, 0x67, 0x43, 0x70,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]) // Required
+        });
+        await awaitSeqno(state.wallet, 1);
+        let cooldown = parseInt((await client.callGetMethod(state.wallet.address, 'restricted_cooldown')).stack[0][1], 16);
+        expect(cooldown).toBeGreaterThan(0);
+    }, 120000);
+
     it('should NOT transfer via restricted key to whitelisted if payload is invalid', async () => {
         let state = await createNewWallets();
         expect(await state.wallet.getSeqNo()).toBe(0);
