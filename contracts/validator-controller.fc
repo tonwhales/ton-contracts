@@ -51,12 +51,26 @@
       var grams = cs~load_grams();
       var tail = cs~load_uint(1 + 4 + 4 + 64 + 32 + 1 + 1);
       var op = cs~load_uint(32);
+      cs.end_parse();
       
       ;; Check basic flags
-      throw_unless(35, flags == 2); ;; first but = 0, ihrDisabled=0, bounce=1, bounced=0
-      ;; throw_if(35, flags & 8); ;; external messages are never valid
-      throw_unless(35, (dest_wc == restricted_address_wc) & (dest_addr == restricted_address_hash)); ;; Check destination
-      throw_if(35, tail); ;; All tail flags must be zero
+      throw_if(35, flags & 1);     ;; header bit == 0
+      throw_unless(35, flags & 2); ;; ihrDisabled=1
+      throw_unless(35, flags & 4); ;; bounce=1
+      throw_if(35, flags & 8);     ;; bounced=0
+
+      ;; Check destination
+      throw_unless(35, (dest_wc == restricted_address_wc) & (dest_addr == restricted_address_hash));
+
+      ;; All tail bits must be zero:
+      ;; * Currency Collection = 1 bit zero
+      ;; * ihrFees = 4 bits zero
+      ;; * fwdFees = 4 bits zero
+      ;; * createdLt = 64 bits zero
+      ;; * createdAt = 32 bits zero
+      ;; * CommonMessageInfo.initState = 1 bit zero
+      ;; * CommonMessageInfo.bodyPrefix = 1 bit zero (body is inlined in current cell)
+      throw_if(35, tail);
 
       ;; Check specific messages
       if (op == 0x4e73744b) {

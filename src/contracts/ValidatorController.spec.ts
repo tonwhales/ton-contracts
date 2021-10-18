@@ -6,6 +6,7 @@ import { createWalletKey } from './tests/createWalletKey';
 import { delay } from '@openland/patterns';
 import { ValidatorControllerSource } from './ValidatorControllerSource';
 import { topUpAddress } from './tests/topUpAddress';
+import { awaitSeqno } from './tests/awaitSeqno';
 
 const client = new TonClient({ endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC' });
 
@@ -73,16 +74,16 @@ describe('ValidatorController', () => {
         expect(await state.wallet.getSeqNo()).toBe(0);
         await state.wallet.transfer({
             seqno: 0,
-            to: state.whitelistedWallet.wallet.address,
+            to: state.foreignWallet.wallet.address,
             value: toNano(0.001),
             secretKey: state.masterKey.secretKey,
             bounce: false
         });
-        await awaitBalance(client, state.whitelistedWallet.wallet.address, new BN(0));
+        await awaitBalance(client, state.foreignWallet.wallet.address, new BN(0));
 
         // Check balances
         expect((await client.getBalance(state.wallet.address)).toNumber()).toBeGreaterThan(0);
-        expect((await client.getBalance(state.whitelistedWallet.wallet.address)).toNumber()).toBeGreaterThan(0);
+        expect((await client.getBalance(state.foreignWallet.wallet.address)).toNumber()).toBeGreaterThan(0);
 
         // Check cooldown
         let cooldown = parseInt((await client.callGetMethod(state.wallet.address, 'restricted_cooldown')).stack[0][1], 16);
@@ -91,26 +92,45 @@ describe('ValidatorController', () => {
 
     it('should transfer via restricted key to whitelisted', async () => {
         let state = await createNewWallets();
-
-        // Transfer to whitelisted to init
         expect(await state.wallet.getSeqNo()).toBe(0);
         await state.wallet.transfer({
             seqno: 0,
             to: state.whitelistedWallet.wallet.address,
             value: toNano(0.001),
             secretKey: state.restrictedKey.secretKey,
-            bounce: false,
-            payload: Buffer.from([0x52, 0x67, 0x43, 0x70])
+            bounce: true, // Required
+            payload: Buffer.from([0x52, 0x67, 0x43, 0x70]) // Required
         });
-        await awaitBalance(client, state.whitelistedWallet.wallet.address, new BN(0));
-
-        // Check balances
-        expect((await client.getBalance(state.wallet.address)).toNumber()).toBeGreaterThan(0);
-        expect((await client.getBalance(state.whitelistedWallet.wallet.address)).toNumber()).toBeGreaterThan(0);
-
-        // Check cooldown
+        await awaitSeqno(state.wallet, 1);
         let cooldown = parseInt((await client.callGetMethod(state.wallet.address, 'restricted_cooldown')).stack[0][1], 16);
         expect(cooldown).toBeGreaterThan(0);
+    }, 120000);
+
+    it('should NOT transfer via restricted key to whitelisted if payload is invalid', async () => {
+        let state = await createNewWallets();
+        expect(await state.wallet.getSeqNo()).toBe(0);
+        await state.wallet.transfer({
+            seqno: 0,
+            to: state.whitelistedWallet.wallet.address,
+            value: toNano(0.001),
+            secretKey: state.restrictedKey.secretKey,
+            bounce: true
+        });
+        await expect(awaitSeqno(state.wallet, 1)).rejects.toThrowError();
+    }, 120000);
+
+    it('should NOT transfer via restricted key to whitelisted if bounce is invalid', async () => {
+        let state = await createNewWallets();
+        expect(await state.wallet.getSeqNo()).toBe(0);
+        await state.wallet.transfer({
+            seqno: 0,
+            to: state.whitelistedWallet.wallet.address,
+            value: toNano(0.001),
+            secretKey: state.restrictedKey.secretKey,
+            bounce: false, // Invalid value
+            payload: Buffer.from([0x52, 0x67, 0x43, 0x70]) // Required
+        });
+        await expect(awaitSeqno(state.wallet, 1)).rejects.toThrowError();
     }, 120000);
 
     // it('should work', async () => {
