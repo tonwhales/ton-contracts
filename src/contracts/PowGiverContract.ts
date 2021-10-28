@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { Address, Contract, UnknownContractSource, TonClient } from "ton";
+import { Address, Contract, UnknownContractSource, TonClient, Cell, BitStringReader } from "ton";
 
 
 function padded(data: Buffer, size: number) {
@@ -27,6 +27,21 @@ export class PowGiverContract implements Contract {
 
     static async create(address: Address, client: TonClient) {
         return new PowGiverContract(address, client);
+    }
+
+    static async extractPowParamsFromState(address: Address, cell: Cell) {
+
+        // Reimplementation
+        // https://github.com/ton-blockchain/ton/blob/24dc184a2ea67f9c47042b4104bbb4d82289fac1/crypto/smartcont/pow-testgiver-code.fc#L146
+
+        const reader = new BitStringReader(cell.bits);
+        reader.skip(32 + 32 + 256);
+        const seed = reader.readBuffer(128 / 8);
+        const complexity = reader.readBuffer(256 / 8);
+        return {
+            seed,
+            complexity
+        }
     }
 
     readonly client: TonClient;
