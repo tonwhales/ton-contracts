@@ -29,7 +29,7 @@ export class PowGiverContract implements Contract {
         return new PowGiverContract(address, client);
     }
 
-    static async extractPowParamsFromState(address: Address, cell: Cell) {
+    static async extractPowParamsFromState(cell: Cell) {
 
         // Reimplementation
         // https://github.com/ton-blockchain/ton/blob/24dc184a2ea67f9c47042b4104bbb4d82289fac1/crypto/smartcont/pow-testgiver-code.fc#L146

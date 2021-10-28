@@ -9,8 +9,8 @@ describe('PowGiverContract', () => {
         let contract = await PowGiverContract.create(address, client);
         let powParams = await contract.getPowParams();
         let contractState = await client.getContractState(address);
-        let stateBox = Cell.fromBoc(contractState.data!)[0];
-        let powParams2 = await PowGiverContract.extractPowParamsFromState(address, stateBox);
+        let stateBoc = Cell.fromBoc(contractState.data!)[0];
+        let powParams2 = await PowGiverContract.extractPowParamsFromState(stateBoc);
         expect(powParams2.seed.equals(powParams.seed)).toBe(true);
         expect(powParams2.complexity.equals(powParams.complexity)).toBe(true);
     });
