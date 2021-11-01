@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { Address, Contract, UnknownContractSource, TonClient, Cell, BitStringReader } from "ton";
+import { Address, Contract, UnknownContractSource, TonClient, Cell, BitStringReader, BitString } from "ton";
 
 
 function padded(data: Buffer, size: number) {
@@ -23,6 +23,16 @@ function parseHex(src: string) {
     return Buffer.from(src, 'hex');
 }
 
+function writeExpire(src: number) {
+    let x = src;
+    let res = Buffer.alloc(4);
+    for (let i = 3; i >= 0; --i) {
+        res[i] = (x & 0xff);
+        x >>= 8;
+    }
+    return res;
+}
+
 export class PowGiverContract implements Contract {
 
     static async create(address: Address, client: TonClient) {
@@ -42,6 +52,24 @@ export class PowGiverContract implements Contract {
             seed,
             complexity
         }
+    }
+
+    static async createMiningJob(seed: Buffer, random: Buffer, wallet: Address, expires: number, bounce: boolean) {
+        
+        //
+        // https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L57
+        //
+
+        return Buffer.concat([
+            Buffer.from([0x0, 0xFA]), // Important prefix: https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L50
+            Buffer.from('Mine'), // Op
+            Buffer.from([wallet.workChain * 4 + (bounce ? 1 : 0)]), // Wallet key
+            writeExpire(expires), // Expire
+            wallet.hash,
+            random,
+            seed,
+            random
+        ]);
     }
 
     readonly client: TonClient;
