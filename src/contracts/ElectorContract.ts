@@ -1,7 +1,84 @@
 import BN from "bn.js";
-import { Address, Contract, ContractSource, TonClient, UnknownContractSource } from "ton";
+import { Address, BitString, Cell, Contract, ContractSource, parseDict, TonClient, UnknownContractSource } from "ton";
+import { sign, signVerify } from "ton-crypto";
 
 export class ElectorContract implements Contract {
+
+
+    /**
+     * Create election request message to be signed
+     */
+    static createElectionRequest(args: {
+        validator: Address,
+        electionTime: number,
+        maxFactor: number,
+        adnlAddress: Buffer
+    }) {
+        if (args.validator.workChain !== -1) {
+            throw Error('Only masterchain could participate in elections');
+        }
+        if (args.adnlAddress.length !== 32) {
+            throw Error('Invalid ADNL address');
+        }
+
+        const res = BitString.alloc(1024);
+        res.writeBuffer(Buffer.from('654c5074', 'hex'));
+        res.writeUint(args.electionTime, 32);
+        res.writeUint(Math.floor(args.maxFactor * 65536), 32);
+        res.writeBuffer(args.validator.hash);
+        res.writeBuffer(args.adnlAddress);
+        return res.getTopUppedArray();
+    }
+
+    /**
+     * Signing election request
+     */
+    static signElectionRequest(args: {
+        request: Buffer,
+        key: Buffer
+    }) {
+        return sign(args.request, args.key);
+    }
+
+    /**
+     * Create election request message
+     */
+    static createElectionRequestSigned(args: {
+        validator: Address,
+        electionTime: number,
+        maxFactor: number,
+        adnlAddress: Buffer,
+        publicKey: Buffer,
+        signature: Buffer,
+        queryId: BN,
+        amount: BN
+    }) {
+        const request = ElectorContract.createElectionRequest({ validator: args.validator, electionTime: args.electionTime, maxFactor: args.maxFactor, adnlAddress: args.adnlAddress });
+        if (!signVerify(request, args.signature, args.publicKey)) {
+            throw Error('Invalid signature');
+        }
+        const res = BitString.alloc(1024);
+        res.writeBuffer(Buffer.from('4e73744b', 'hex'));
+        res.writeUint(args.queryId, 64);
+        res.writeCoins(args.amount);
+        res.writeBuffer(args.publicKey);
+        res.writeUint(args.electionTime, 32);
+        res.writeUint(Math.floor(args.maxFactor * 65536), 32);
+        res.writeBuffer(args.adnlAddress);
+        res.writeBuffer(args.signature);
+        return res.getTopUppedArray();
+    }
+
+    /**
+     * Create recover stake message
+     */
+    static createRecoverStakeMessage(args: { validator: Address, queryId: BN }) {
+        const res = BitString.alloc(1024);
+        res.writeBuffer(Buffer.from('47657424', 'hex'));
+        res.writeUint(args.queryId, 64);
+        return res.getTopUppedArray();
+    }
+
     // Please note that we are NOT loading address from config to avoid mistake and send validator money to a wrong contract
     readonly address: Address = Address.parseRaw('-1:3333333333333333333333333333333333333333333333333333333333333333');
     readonly source: ContractSource = new UnknownContractSource('org.ton.elector', -1, 'Elector Contract');
@@ -26,9 +103,46 @@ export class ElectorContract implements Contract {
         return new BN(stake.slice(2), 'hex');
     }
 
-    async getPastElectionsIDs() {
-        let res = await this.client.callGetMethod(this.address, 'past_election_ids');
-        return res.stack[0][1].elements.map((v: any) => parseInt(v.number.number, 10));
+    async getPastElectionsList() {
+        let res = await this.client.callGetMethod(this.address, 'past_elections_list');
+        let list = res.stack[0][1].elements;
+        let elections: { id: number, unfreezeAt: number, stakeHeld: number }[] = [];
+        for (let el of list) {
+            let elect = el.tuple.elements;
+            let id = new BN(elect[0].number.number).toNumber();
+            let unfreezeAt = new BN(elect[1].number.number).toNumber();
+            let stakeHeld = new BN(elect[3].number.number).toNumber();
+            elections.push({ id, unfreezeAt, stakeHeld });
+        }
+        return elections;
+    }
+
+
+    async getPastElections() {
+        let res = await this.client.callGetMethod(this.address, 'past_elections');
+        let list = res.stack[0][1].elements;
+        let elections: { id: number, unfreezeAt: number, stakeHeld: number, totalStake: BN, bonuses: BN, frozen: Map<string, { address: Address, weight: BN, stake: BN }> }[] = [];
+        for (let el of list) {
+            let elect = el.tuple.elements;
+            let id = new BN(elect[0].number.number).toNumber();
+            let unfreezeAt = new BN(elect[1].number.number).toNumber();
+            let stakeHeld = new BN(elect[2].number.number).toNumber();
+            let totalStake = new BN(elect[5].number.number);
+            let bonuses = new BN(elect[6].number.number);
+            let frozenDict = Cell.fromBoc(Buffer.from(elect[4].cell.bytes, 'base64'))[0];
+            let frozen = parseDict(frozenDict, 256, (cell, reader) => {
+                let address = new Address(-1, reader.readBuffer(32));
+                let weight = reader.readUint(64);
+                let stake = reader.readCoins();
+                return {
+                    address,
+                    weight,
+                    stake
+                };
+            });
+            elections.push({ id, unfreezeAt, stakeHeld, totalStake, bonuses, frozen });
+        }
+        return elections;
     }
 
     async getElectionEntities() {
