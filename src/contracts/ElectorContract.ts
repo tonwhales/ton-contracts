@@ -162,4 +162,10 @@ export class ElectorContract implements Contract {
         }
         return { minStake, allStakes, endElectionsTime, startWorkTime, entities };
     }
+
+    async getActiveElectionId() {
+        let res = await this.client.callGetMethod(this.address, 'active_election_id');
+        let id = parseInt(res.stack[0][1], 16);
+        return id > 0 ? id : null;
+    }
 }

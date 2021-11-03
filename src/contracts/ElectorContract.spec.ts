@@ -12,6 +12,9 @@ describe('ElectorContract', () => {
     it('should fetch election entities', async () => {
         await contract.getElectionEntities();
     });
+    it('should fetch active election id', async () => {
+        console.warn(await contract.getActiveElectionId());
+    });
     it('should fetch returned stake', async () => {
         await contract.getReturnedStake(Address.parseFriendly('Ef_1g5xkp8asoCQkFwJ7y3lLBo2iUvx3mOuWMQYctltIPj1e').address);
     });
@@ -34,11 +37,5 @@ describe('ElectorContract', () => {
         const sample = Buffer.from('ZUxQdF1wMesAArMzrxfbQ_QLaqJOcgOp-MhlIxDIjBJQYtESn-iD6qG9Z2PFwrlFKUBfsH0d37TEK_sHcn57oHAGsttWn78jBgueXA==', 'base64');
         const request = ElectorContract.createElectionRequest({ validator: address, electionTime: time, maxFactor: factor, adnlAddress: adnl });
         expect(request.equals(sample)).toBe(true);
-    });
-
-    it('should sign participant request', () => {
-        const address = Address.parse('kf-vF9tD9Atqok5yA6n4yGUjEMiMElBi0RKf6IPqob1nY2dP');
-        const time = 1567633899;
-        const factor = 2.7;
     });
 });
