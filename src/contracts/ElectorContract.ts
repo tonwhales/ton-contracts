@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, BitString, Cell, Contract, ContractSource, parseDict, TonClient, UnknownContractSource } from "ton";
+import { Address, BitString, Cell, Contract, ContractSource, Message, parseDict, RawMessage, TonClient, UnknownContractSource } from "ton";
 import { sign, signVerify } from "ton-crypto";
 
 export class ElectorContract implements Contract {
@@ -52,21 +52,24 @@ export class ElectorContract implements Contract {
         signature: Buffer,
         queryId: BN,
         amount: BN
-    }) {
+    }): Message {
         const request = ElectorContract.createElectionRequest({ validator: args.validator, electionTime: args.electionTime, maxFactor: args.maxFactor, adnlAddress: args.adnlAddress });
         if (!signVerify(request, args.signature, args.publicKey)) {
             throw Error('Invalid signature');
         }
-        const res = BitString.alloc(1024);
-        res.writeBuffer(Buffer.from('4e73744b', 'hex'));
-        res.writeUint(args.queryId, 64);
-        res.writeCoins(args.amount);
-        res.writeBuffer(args.publicKey);
-        res.writeUint(args.electionTime, 32);
-        res.writeUint(Math.floor(args.maxFactor * 65536), 32);
-        res.writeBuffer(args.adnlAddress);
-        res.writeBuffer(args.signature);
-        return res.getTopUppedArray();
+
+        const cell = new Cell();
+        cell.bits.writeBuffer(Buffer.from('4e73744b', 'hex'));
+        cell.bits.writeUint(args.queryId, 64);
+        cell.bits.writeCoins(args.amount);
+        cell.bits.writeBuffer(args.publicKey);
+        cell.bits.writeUint(args.electionTime, 32);
+        cell.bits.writeUint(Math.floor(args.maxFactor * 65536), 32);
+        cell.bits.writeBuffer(args.adnlAddress);
+        const signatureCell = new Cell();
+        signatureCell.bits.writeBuffer(args.signature);
+        cell.refs.push(signatureCell);
+        return new RawMessage(cell);
     }
 
     /**
