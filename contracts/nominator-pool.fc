@@ -45,14 +45,15 @@
         int min_stake = 1000000000; ;; 1 Gram
         int stake = msg_value - stake_fee; ;; New stake
         throw_unless(393, stake >= min_stake); ;; Check if stake is more than minimum required stake
+        throw_unless(394, ~ s_addr_wc); ;; Only workchain nominators
         
        ;; Update global working amount
         working_amount = working_amount + stake;
 
         ;; Update nominator state
-        (int active, int locked) = nominators.get_nominator_data(s_addr_wc, s_addr_hash);
+        (int active, int locked) = nominators.get_nominator_data(s_addr_hash);
         active = active + stake;
-        nominators~set_nominator_data(s_addr_wc, s_addr_hash, active + stake, locked);
+        nominators~set_nominator_data(s_addr_hash, active, locked);
 
         ;; Persist data
         save_data(seqno, owner, seed, accept_stakes, working_amount, locked_amount, nominators);

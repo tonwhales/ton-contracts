@@ -40,17 +40,8 @@
 ;; - locked (coins)
 ;; 
 
-int nominator_key(int wc, int addr_hash) inline {
-  ;; Idea from: https://github.com/EmelyanenkoK/nominator_pool/blob/e2532aff7d1a68f91259adeaa81284d44ee8c5df/storage.fc#L2
-  ;; Note address bits in pseudoaddress is sum of address and workchain,
-  ;; chances of collision and overflow are negligible. -1:00..000 has no ability to
-  ;; stake in pool
-  return wc + addr_hash;
-}
-
-(int, int) get_nominator_data (cell nominators, int workchain, int address_hash) {
-  int key = nominator_key(workchain, address_hash);
-  (slice nominator, int found) = nominators.udict_get?(256, key);
+(int, int) get_nominator_data (cell nominators, int address_hash) {
+  (slice nominator, int found) = nominators.udict_get?(256, address_hash);
   if( ~ found) {
     return (0, 0);
   }
@@ -58,19 +49,17 @@ int nominator_key(int wc, int addr_hash) inline {
 }
 
 (cell, ()) ~set_nominator_data (cell nominators,
-                                int workchain, 
                                 int address_hash,
                                 int stake, 
                                 int locked
 ) {
-  int key = nominator_key(workchain, address_hash);
   if (stake + locked > 0) {
-    nominators~udict_set_builder(256, key, begin_cell()
+    nominators~udict_set_builder(256, address_hash, begin_cell()
       .store_grams(stake)
       .store_grams(locked)
     );
   } else {
-    nominators~udict_delete?(256,key);
+    nominators~udict_delete?(256, address_hash);
   }
   return (nominators, ());
 }

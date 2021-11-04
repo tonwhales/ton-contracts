@@ -130,10 +130,10 @@ export class ElectorContract implements Contract {
             let totalStake = new BN(elect[5].number.number);
             let bonuses = new BN(elect[6].number.number);
             let frozenDict = Cell.fromBoc(Buffer.from(elect[4].cell.bytes, 'base64'))[0];
-            let frozen = parseDict(frozenDict, 256, (cell, reader) => {
-                let address = new Address(-1, reader.readBuffer(32));
-                let weight = reader.readUint(64);
-                let stake = reader.readCoins();
+            let frozen = parseDict(frozenDict.beginParse(), 256, (slice) => {
+                let address = new Address(-1, slice.readBuffer(32));
+                let weight = slice.readUint(64);
+                let stake = slice.readCoins();
                 return {
                     address,
                     weight,
