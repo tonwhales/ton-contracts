@@ -10,5 +10,5 @@
     .store_grams_string(stake)
     .store_uint(597313372290408539492, 72); ;; " accepted"
     
-  send_raw_message(msg.end_cell(), 2); ;; 2 == pay fees separately
+  send_raw_message(msg.end_cell(), 1); ;; Pay gas separately
 }

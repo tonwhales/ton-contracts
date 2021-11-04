@@ -1,0 +1,13 @@
+_ nominators_list() method_id {
+    (int seqno, slice owner, int seed, int accept_stakes, int working_amount, int locked_amount, cell nominators) = load_data();
+    var l = nil;
+    var id = (1 << 255) + ((1 << 255) - 1);
+    do {
+        (id, var cs, var f) = nominators.udict_get_prev?(256, id);
+        if (f) {
+            var (stake, locked) = (cs~load_grams(), cs~load_grams());
+            l = cons([id, [stake, locked]], l);
+        }
+    } until (~ f);
+    return (l);
+}

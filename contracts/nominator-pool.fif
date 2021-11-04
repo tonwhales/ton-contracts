@@ -4,12 +4,13 @@ PROGRAM{
   DECLPROC ~parse_text_command
   DECLPROC encode_number_to_text
   DECLPROC store_grams_string
-  DECLPROC send_text_stake_accept_message
   DECLPROC load_data
   DECLPROC save_data
   DECLPROC nominator_key
   DECLPROC get_nominator_data
   DECLPROC ~set_nominator_data
+  DECLPROC send_text_stake_accept_message
+  92608 DECLMETHOD nominators_list
   DECLPROC recv_internal
   DECLPROC recv_external
   elector_address PROC:<{
@@ -151,32 +152,6 @@ PROGRAM{
     s1 s2 XCHG	//  rv msg _24
     STUX	//  _25
   }>
-  send_text_stake_accept_message PROC:<{
-    //  addr stake
-    597313372290408539492 PUSHINT	//  addr stake _3=597313372290408539492
-    126943687828768 PUSHINT	//  addr stake _3=597313372290408539492 _4=126943687828768
-    0 PUSHINT	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0
-    DUP	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0 _6=0
-    24 PUSHINT	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0 _6=0 _7=24
-    NEWC	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0 _6=0 _7=24 _8
-    6 STU	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0 _6=0 _10
-    s0 s6 XCHG2	//  _6=0 stake _3=597313372290408539492 _4=126943687828768 _5=0 _10 addr
-    STSLICER	//  _6=0 stake _3=597313372290408539492 _4=126943687828768 _5=0 _11
-    OVER	//  _6=0 stake _3=597313372290408539492 _4=126943687828768 _5=0 _11 _12=0
-    STGRAMS	//  _6=0 stake _3=597313372290408539492 _4=126943687828768 _5=0 _13
-    s1 s5 XCHG	//  _5=0 stake _3=597313372290408539492 _4=126943687828768 _6=0 _13
-    107 STU	//  _5=0 stake _3=597313372290408539492 _4=126943687828768 _27
-    s1 s4 XCHG	//  _4=126943687828768 stake _3=597313372290408539492 _5=0 _27
-    32 STU	//  _4=126943687828768 stake _3=597313372290408539492 _29
-    s1 s3 XCHG	//  _3=597313372290408539492 stake _4=126943687828768 _29
-    48 STU	//  _3=597313372290408539492 stake _31
-    SWAP	//  _3=597313372290408539492 _31 stake
-    store_grams_string CALLDICT	//  _3=597313372290408539492 _32
-    72 STU	//  msg
-    ENDC	//  _35
-    2 PUSHINT	//  _35 _36=2
-    SENDRAWMSG
-  }>
   load_data PROC:<{
     // 
     c4 PUSH	//  _1
@@ -252,6 +227,64 @@ PROGRAM{
       DICTUDEL	//  _19 _20
       DROP	//  nominators
     }>
+  }>
+  send_text_stake_accept_message PROC:<{
+    //  addr stake
+    597313372290408539492 PUSHINT	//  addr stake _3=597313372290408539492
+    126943687828768 PUSHINT	//  addr stake _3=597313372290408539492 _4=126943687828768
+    0 PUSHINT	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0
+    DUP	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0 _6=0
+    24 PUSHINT	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0 _6=0 _7=24
+    NEWC	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0 _6=0 _7=24 _8
+    6 STU	//  addr stake _3=597313372290408539492 _4=126943687828768 _5=0 _6=0 _10
+    s0 s6 XCHG2	//  _6=0 stake _3=597313372290408539492 _4=126943687828768 _5=0 _10 addr
+    STSLICER	//  _6=0 stake _3=597313372290408539492 _4=126943687828768 _5=0 _11
+    OVER	//  _6=0 stake _3=597313372290408539492 _4=126943687828768 _5=0 _11 _12=0
+    STGRAMS	//  _6=0 stake _3=597313372290408539492 _4=126943687828768 _5=0 _13
+    s1 s5 XCHG	//  _5=0 stake _3=597313372290408539492 _4=126943687828768 _6=0 _13
+    107 STU	//  _5=0 stake _3=597313372290408539492 _4=126943687828768 _27
+    s1 s4 XCHG	//  _4=126943687828768 stake _3=597313372290408539492 _5=0 _27
+    32 STU	//  _4=126943687828768 stake _3=597313372290408539492 _29
+    s1 s3 XCHG	//  _3=597313372290408539492 stake _4=126943687828768 _29
+    48 STU	//  _3=597313372290408539492 stake _31
+    SWAP	//  _3=597313372290408539492 _31 stake
+    store_grams_string CALLDICT	//  _3=597313372290408539492 _32
+    72 STU	//  msg
+    ENDC	//  _35
+    1 PUSHINT	//  _35 _36=1
+    SENDRAWMSG
+  }>
+  nominators_list PROC:<{
+    // 
+    load_data CALLDICT	//  _34 _35 _36 _37 _38 _39 _40
+    6 1 BLKDROP2	//  nominators
+    PUSHNULL	//  nominators l
+    256 PUSHPOW2DEC	//  nominators l id
+    UNTIL:<{
+      s2 PUSH
+      8 PUSHPOW2	//  nominators l id nominators _22=256
+      DICTUGETPREV
+      NULLSWAPIFNOT2	//  nominators l cs id f
+      DUP	//  nominators l cs id f f
+      IF:<{	//  nominators l cs id f
+        s0 s2 XCHG	//  nominators l f id cs
+        LDGRAMS	//  nominators l f id _26 cs
+        LDGRAMS	//  nominators l f id _26 _47 _46
+        DROP	//  nominators l f id stake locked
+        PAIR	//  nominators l f id _31
+        s1 s(-1) PUXC	//  nominators l f id id _31
+        PAIR	//  nominators l f id _30
+        s0 s3 XCHG2	//  nominators id f _30 l
+        CONS	//  nominators id f l
+        s0 s2 XCHG	//  nominators l f id
+      }>ELSE<{
+        s2 POP	//  nominators l f id
+      }>
+      SWAP	//  nominators l id f
+      NOT	//  nominators l id _33
+    }>	//  nominators l id
+    DROP
+    NIP	//  l
   }>
   recv_internal PROC:<{
     //  msg_value in_msg_cell in_msg

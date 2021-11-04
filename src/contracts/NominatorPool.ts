@@ -24,4 +24,8 @@ export class NominatorPool implements Contract {
             body: new CommonMessageInfo({ stateInit: new StateInit({ code: this.source.initialCode, data: this.source.initialData }) })
         }));
     }
+
+    async getNominatorsList() {
+        console.warn(JSON.stringify((await this.client.callGetMethod(this.address, 'nominators_list')).stack));
+    }
 }
