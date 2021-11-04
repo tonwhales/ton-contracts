@@ -50,8 +50,7 @@ export class ElectorContract implements Contract {
         adnlAddress: Buffer,
         publicKey: Buffer,
         signature: Buffer,
-        queryId: BN,
-        amount: BN
+        queryId: BN
     }): Message {
         const request = ElectorContract.createElectionRequest({ validator: args.validator, electionTime: args.electionTime, maxFactor: args.maxFactor, adnlAddress: args.adnlAddress });
         if (!signVerify(request, args.signature, args.publicKey)) {
