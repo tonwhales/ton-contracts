@@ -1,0 +1,12 @@
+PROGRAM{
+  DECLPROC recv_internal
+  DECLPROC recv_external
+  recv_internal PROC:<{
+    //  in_msg
+    DROP	// 
+  }>
+  recv_external PROC:<{
+    //  in_msg
+    DROP	// 
+  }>
+}END>c
