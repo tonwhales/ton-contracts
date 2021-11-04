@@ -57,18 +57,16 @@ export class ElectorContract implements Contract {
         if (!signVerify(request, args.signature, args.publicKey)) {
             throw Error('Invalid signature');
         }
-
         const cell = new Cell();
         cell.bits.writeBuffer(Buffer.from('4e73744b', 'hex'));
         cell.bits.writeUint(args.queryId, 64);
-        cell.bits.writeCoins(args.amount);
         cell.bits.writeBuffer(args.publicKey);
         cell.bits.writeUint(args.electionTime, 32);
         cell.bits.writeUint(Math.floor(args.maxFactor * 65536), 32);
         cell.bits.writeBuffer(args.adnlAddress);
-        const signatureCell = new Cell();
-        signatureCell.bits.writeBuffer(args.signature);
-        cell.refs.push(signatureCell);
+        const sig = new Cell();
+        sig.bits.writeBuffer(args.signature);
+        cell.refs.push(sig);
         return new RawMessage(cell);
     }
 
