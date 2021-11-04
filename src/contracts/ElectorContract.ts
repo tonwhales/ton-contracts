@@ -152,13 +152,14 @@ export class ElectorContract implements Contract {
         let minStake = parseInt(res.stack[2][1], 16);
         let allStakes = parseInt(res.stack[3][1], 16);
         let electionEntries = res.stack[4][1].elements;
-        let entities: { pubkey: Buffer, stake: BN, address: Address }[] = [];
+        let entities: { pubkey: Buffer, stake: BN, address: Address, adnl: Buffer }[] = [];
         for (let e of electionEntries) {
-            let pubkey = Buffer.from(e.tuple.elements[0].number.number, 'hex');
+            let pubkey = Buffer.from(new BN(e.tuple.elements[0].number.number).toString('hex'), 'hex');
             let stake = new BN(e.tuple.elements[1].tuple.elements[0].number.number);
             let addrraw = new BN(e.tuple.elements[1].tuple.elements[2].number.number).toString('hex');
             let address = new Address(-1, Buffer.from(addrraw, 'hex'));
-            entities.push({ pubkey, stake: stake, address });
+            let adnl = Buffer.from(new BN(e.tuple.elements[1].tuple.elements[3].number.number).toString('hex'), 'hex');
+            entities.push({ pubkey, stake: stake, address, adnl });
         }
         return { minStake, allStakes, endElectionsTime, startWorkTime, entities };
     }

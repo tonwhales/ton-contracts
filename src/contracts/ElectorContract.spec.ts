@@ -10,7 +10,7 @@ describe('ElectorContract', () => {
         await contract.getPastElections();
     });
     it('should fetch election entities', async () => {
-        await contract.getElectionEntities();
+       console.warn(await contract.getElectionEntities());
     });
     it('should fetch active election id', async () => {
         console.warn(await contract.getActiveElectionId());
