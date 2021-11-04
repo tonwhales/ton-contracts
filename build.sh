@@ -22,11 +22,17 @@ ton-compiler --input ./contracts/validator-controller.fc --output ./contracts/va
 openssl base64 -A -in ./contracts/validator-controller.cell  -out ./contracts/validator-controller.cell.base64
 
 ton-compiler --fift --output ./contracts/nominator-pool.fif \
-    --input ./contracts/nominator-pool.fc \
-    --input ./contracts/nominator-pool-storage.fc
+    --input ./contracts/nominator-pool-utils.fc \
+    --input ./contracts/nominator-pool-storage.fc \
+    --input ./contracts/nominator-pool-responses.fc \
+    --input ./contracts/nominator-pool.fc
+
 ton-compiler --output ./contracts/nominator-pool.cell \
-    --input ./contracts/nominator-pool.fc \
-    --input ./contracts/nominator-pool-storage.fc    
+    --input ./contracts/nominator-pool-utils.fc \
+    --input ./contracts/nominator-pool-storage.fc \
+    --input ./contracts/nominator-pool-responses.fc \
+    --input ./contracts/nominator-pool.fc
+    
 openssl base64 -A -in ./contracts/nominator-pool.cell  -out ./contracts/nominator-pool.cell.base64
 
 # Build distributive

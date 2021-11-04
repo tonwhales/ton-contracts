@@ -1,4 +1,4 @@
-import { Address, Contract, TonClient, ContractSource } from "ton";
+import { Address, Contract, TonClient, ContractSource, ExternalMessage, CommonMessageInfo, StateInit } from "ton";
 import { contractAddress } from "ton/dist/contracts/sources/ContractSource";
 import { NominatorPoolSource } from "./NominatorPoolSource";
 
@@ -16,5 +16,12 @@ export class NominatorPool implements Contract {
         this.source = source;
         this.address = address;
         this.client = client;
+    }
+
+    async deploy() {
+        await this.client.sendMessage(new ExternalMessage({
+            to: this.address,
+            body: new CommonMessageInfo({ stateInit: new StateInit({ code: this.source.initialCode, data: this.source.initialData }) })
+        }));
     }
 }

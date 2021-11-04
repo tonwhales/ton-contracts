@@ -3,7 +3,7 @@ import { Address, Cell, ConfigStore, ContractSource } from "ton";
 export class NominatorPoolSource implements ContractSource {
 
     static readonly SOURCE = Buffer.from(
-        'te6ccgEBBgEAKgABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQAE8jAABNAwABGhskkEIA63mis=',
+        'te6ccgECFAEAAh0AART/APSkE/S88sgLAQIBIAIDAgLOBAUALPIw8AcmwACXBqQG8Aj4AJVfB/LAZOICASAGBwIBSBARAgEgCAkCASAKCwDBQB0NMD+kAwIPpEA3Gwkl8F4PAHCtMfIbOUMfADMZEw4oIQc3Rha7qOMYIQO5rKAFG7oVIMvvLhiVEaoFR5aPAKURygLKAQSxA4SgDwCxA2RUAQNxAn8AgB8AbgXwvywZSADxVwAdMHIcBsjhVsEtMXAYIIb2NruvLh+YIQbG9ja1neIcByjhhsEtMvAYIgZWNvdmVyuvLh+YIQcmVjb1neIcBzjhZsEtMfAYIQdGFrZbry4fmCEHN0YWtZ3gHAd44YMdM3AYIoaXRoZHJhd7ry4fmCEHdpdGgB3gGAIBIAwNAgEgDg8AOxwIHGOFAN6qQymMCSoEqADqgcCpCHAAEQw5jBsEoABZIIQO5rKAKkMAfAEAaoCQTDPAYAuAcsHAfAEeSKhl4AwUAPLBwLkAaoCEs8BgAGcgjggYWNjZXB0ZWSCIHN0YWtlIHAggBjIywVQBs8WIfoCFctqFMsfE8svAfAFy0fJcvsAgACU7UTQ0x/6QNP/0wD6APoA9AQwgADFAbIyx9QBc8WE8v/ywAB+gIB+gL0AMntVIAgEgEhMAJygAYMH9A5vobOTMHAg4PoA+gAwgAD8WqBTIaDCAJ3IUAP6AgH6AgKDB/RDmGwhAYMH9Fsw4oA==',
         'base64'
     );
 
@@ -26,6 +26,14 @@ export class NominatorPoolSource implements ContractSource {
         initialData.bits.writeAddress(owner);
         // data: seed
         initialData.bits.writeBuffer(seed);
+        // data: enable_staking
+        initialData.bits.writeBit(1);
+        // data: working coins
+        initialData.bits.writeCoins(0);
+        // data: locked coins
+        initialData.bits.writeCoins(0);
+        // data: empty dict
+        initialData.bits.writeBit(0);
 
         return new NominatorPoolSource({ initialCode, initialData, workchain, seed, owner });
     }

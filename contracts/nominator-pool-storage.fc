@@ -1,3 +1,76 @@
-int get_number() method_id {
-  return 123456789;
+;;
+;; Storage Format
+;;
+;; - seqno (32 bit)
+;; - owner (address)
+;; - seed (32 bytes)
+;; - accept_stakes (1bit)
+;; - working amount (coins)
+;; - locked amount (coins)
+;; - nominators (dict)
+
+(int, slice, int, int, int, int, cell) load_data() {
+  var ds = get_data().begin_parse();
+  return (
+    ds~load_uint(32),   ;; data: seqno
+    ds~load_msg_addr(), ;; data: owner
+    ds~load_uint(256),  ;; data: seed
+    ds~load_uint(1),    ;; data: accept_stakes
+    ds~load_grams(),    ;; data: working coins
+    ds~load_grams(),    ;; data: locked coins
+    ds~load_dict()      ;; data: nominators
+  );
+}
+
+() save_data(int seqno, slice owner, int seed, int accept_stakes, int working_coins, int locked_coins, cell nominators) impure {
+  set_data(begin_cell()
+    .store_uint(seqno, 32)
+    .store_slice(owner)
+    .store_uint(seed, 256)
+    .store_uint(accept_stakes, 1)
+    .store_grams(working_coins)
+    .store_grams(locked_coins)
+    .store_dict(nominators)
+  .end_cell());
+}
+
+;;
+;; Nominator storage
+;; - stake (coins)
+;; - locked (coins)
+;; 
+
+int nominator_key(int wc, int addr_hash) inline {
+  ;; Idea from: https://github.com/EmelyanenkoK/nominator_pool/blob/e2532aff7d1a68f91259adeaa81284d44ee8c5df/storage.fc#L2
+  ;; Note address bits in pseudoaddress is sum of address and workchain,
+  ;; chances of collision and overflow are negligible. -1:00..000 has no ability to
+  ;; stake in pool
+  return wc + addr_hash;
+}
+
+(int, int) get_nominator_data (cell nominators, int workchain, int address_hash) {
+  int key = nominator_key(workchain, address_hash);
+  (slice nominator, int found) = nominators.udict_get?(256, key);
+  if( ~ found) {
+    return (0, 0);
+  }
+  return (nominator~load_grams(), nominator~load_grams());
+}
+
+(cell, ()) ~set_nominator_data (cell nominators,
+                                int workchain, 
+                                int address_hash,
+                                int stake, 
+                                int locked
+) {
+  int key = nominator_key(workchain, address_hash);
+  if (stake + locked > 0) {
+    nominators~udict_set_builder(256, key, begin_cell()
+      .store_grams(stake)
+      .store_grams(locked)
+    );
+  } else {
+    nominators~udict_delete?(256,key);
+  }
+  return (nominators, ());
 }

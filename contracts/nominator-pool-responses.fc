@@ -1,0 +1,14 @@
+() send_text_stake_accept_message(slice addr, int stake) impure {
+  ;; int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 011000
+  var msg = begin_cell()
+    .store_uint(0x18, 6)
+    .store_slice(addr)
+    .store_grams(0)
+    .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+    .store_uint(0, 32)
+    .store_uint(126943687828768, 48) ;; "stake "
+    .store_grams_string(stake)
+    .store_uint(597313372290408539492, 72); ;; " accepted"
+    
+  send_raw_message(msg.end_cell(), 2); ;; 2 == pay fees separately
+}
