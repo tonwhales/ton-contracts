@@ -1,6 +1,7 @@
 PROGRAM{
   DECLPROC recv_internal
   DECLPROC recv_external
+  121124 DECLMETHOD get_number
   recv_internal PROC:<{
     //  in_msg
     DROP	// 
@@ -8,5 +9,9 @@ PROGRAM{
   recv_external PROC:<{
     //  in_msg
     DROP	// 
+  }>
+  get_number PROC:<{
+    // 
+    123456789 PUSHINT	//  _0=123456789
   }>
 }END>c

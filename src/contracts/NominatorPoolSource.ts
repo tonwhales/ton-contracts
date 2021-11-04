@@ -3,7 +3,7 @@ import { Address, Cell, ConfigStore, ContractSource } from "ton";
 export class NominatorPoolSource implements ContractSource {
 
     static readonly SOURCE = Buffer.from(
-        'te6ccgEBBAEAGgABFP8A9KQT9LzyyAsBAgEgAgMABNIwAATyMA==',
+        'te6ccgEBBgEAKgABFP8A9KQT9LzyyAsBAgEgAgMCAUgEBQAE8jAABNAwABGhskkEIA63mis=',
         'base64'
     );
 
