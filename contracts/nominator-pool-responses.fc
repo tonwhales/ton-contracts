@@ -12,3 +12,31 @@
     
   send_raw_message(msg.end_cell(), 1); ;; Pay gas separately
 }
+
+() send_text_lock_accept_message(slice addr, int locked) impure {
+  ;; int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 011000
+  var msg = begin_cell()
+    .store_uint(0x18, 6)
+    .store_slice(addr)
+    .store_grams(0)
+    .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+    .store_uint(0, 32)
+    .store_uint(126943687828768, 48) ;; "stake "
+    .store_grams_string(locked)
+    .store_uint(9126424919893348, 56); ;; " locked"
+    
+  send_raw_message(msg.end_cell(), 1); ;; Pay gas separately
+}
+
+() send_text_withdraw_message(slice addr, int value) impure {
+  ;; int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool src:MsgAddress -> 011000
+  var msg = begin_cell()
+    .store_uint(0x18, 6)
+    .store_slice(addr)
+    .store_grams(value)
+    .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+    .store_uint(0, 32)
+    .store_uint(210982622422653884098403377339833676834051106906582061058449761145002618732, 248); ;; "withdrawal from nomination pool"
+
+  send_raw_message(msg.end_cell(), 1); ;; Pay gas separately
+}

@@ -11,3 +11,9 @@ _ nominators_list() method_id {
     } until (~ f);
     return (l);
 }
+
+_ balance() method_id {
+    (int seqno, slice owner, int seed, int accept_stakes, int working_amount, int locked_amount, cell nominators) = load_data();
+    [int pool_balance, cell cur_col] = get_balance();
+    return (pool_balance, working_amount, locked_amount);
+}

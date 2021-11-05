@@ -9,7 +9,10 @@ PROGRAM{
   DECLPROC get_nominator_data
   DECLPROC ~set_nominator_data
   DECLPROC send_text_stake_accept_message
+  DECLPROC send_text_lock_accept_message
+  DECLPROC send_text_withdraw_message
   92608 DECLMETHOD nominators_list
+  104128 DECLMETHOD balance
   DECLPROC recv_internal
   DECLPROC recv_external
   elector_address PROC:<{
@@ -246,6 +249,52 @@ PROGRAM{
     1 PUSHINT	//  _35 _36=1
     SENDRAWMSG
   }>
+  send_text_lock_accept_message PROC:<{
+    //  addr locked
+    9126424919893348 PUSHINT	//  addr locked _3=9126424919893348
+    126943687828768 PUSHINT	//  addr locked _3=9126424919893348 _4=126943687828768
+    0 PUSHINT	//  addr locked _3=9126424919893348 _4=126943687828768 _5=0
+    DUP	//  addr locked _3=9126424919893348 _4=126943687828768 _5=0 _6=0
+    24 PUSHINT	//  addr locked _3=9126424919893348 _4=126943687828768 _5=0 _6=0 _7=24
+    NEWC	//  addr locked _3=9126424919893348 _4=126943687828768 _5=0 _6=0 _7=24 _8
+    6 STU	//  addr locked _3=9126424919893348 _4=126943687828768 _5=0 _6=0 _10
+    s0 s6 XCHG2	//  _6=0 locked _3=9126424919893348 _4=126943687828768 _5=0 _10 addr
+    STSLICER	//  _6=0 locked _3=9126424919893348 _4=126943687828768 _5=0 _11
+    OVER	//  _6=0 locked _3=9126424919893348 _4=126943687828768 _5=0 _11 _12=0
+    STGRAMS	//  _6=0 locked _3=9126424919893348 _4=126943687828768 _5=0 _13
+    s1 s5 XCHG	//  _5=0 locked _3=9126424919893348 _4=126943687828768 _6=0 _13
+    107 STU	//  _5=0 locked _3=9126424919893348 _4=126943687828768 _27
+    s1 s4 XCHG	//  _4=126943687828768 locked _3=9126424919893348 _5=0 _27
+    32 STU	//  _4=126943687828768 locked _3=9126424919893348 _29
+    s1 s3 XCHG	//  _3=9126424919893348 locked _4=126943687828768 _29
+    48 STU	//  _3=9126424919893348 locked _31
+    SWAP	//  _3=9126424919893348 _31 locked
+    store_grams_string CALLDICT	//  _3=9126424919893348 _32
+    56 STU	//  msg
+    ENDC	//  _35
+    1 PUSHINT	//  _35 _36=1
+    SENDRAWMSG
+  }>
+  send_text_withdraw_message PROC:<{
+    //  addr value
+    210982622422653884098403377339833676834051106906582061058449761145002618732 PUSHINT	//  addr value _3=210982622422653884098403377339833676834051106906582061058449761145002618732
+    0 PUSHINT	//  addr value _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0
+    DUP	//  addr value _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0 _5=0
+    24 PUSHINT	//  addr value _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0 _5=0 _6=24
+    NEWC	//  addr value _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0 _5=0 _6=24 _7
+    6 STU	//  addr value _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0 _5=0 _9
+    s0 s5 XCHG2	//  _5=0 value _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0 _9 addr
+    STSLICER	//  _5=0 value _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0 _10
+    s0 s3 XCHG2	//  _5=0 _4=0 _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _10 value
+    STGRAMS	//  _5=0 _4=0 _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _11
+    s1 s3 XCHG	//  _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0 _5=0 _11
+    107 STU	//  _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _4=0 _25
+    32 STU	//  _3=210982622422653884098403377339833676834051106906582061058449761145002618732 _27
+    248 STU	//  msg
+    ENDC	//  _30
+    1 PUSHINT	//  _30 _31=1
+    SENDRAWMSG
+  }>
   nominators_list PROC:<{
     // 
     load_data CALLDICT	//  _34 _35 _36 _37 _38 _39 _40
@@ -278,12 +327,22 @@ PROGRAM{
     DROP
     NIP	//  l
   }>
+  balance PROC:<{
+    // 
+    load_data CALLDICT	//  _12 _13 _14 _15 _16 _17 _18
+    DROP
+    4 2 BLKDROP2	//  working_amount locked_amount
+    BALANCE	//  working_amount locked_amount _10
+    UNPAIR	//  working_amount locked_amount _19 _20
+    DROP	//  working_amount locked_amount pool_balance
+    -ROT	//  pool_balance working_amount locked_amount
+  }>
   recv_internal PROC:<{
     //  msg_value in_msg_cell in_msg
     SWAP	//  msg_value in_msg in_msg_cell
     CTOS	//  msg_value in_msg cs
     4 LDU	//  msg_value in_msg flags cs
-    LDMSGADDR	//  msg_value in_msg flags _60 _59
+    LDMSGADDR	//  msg_value in_msg flags _107 _106
     DROP	//  msg_value in_msg flags s_addr
     DUP	//  msg_value in_msg flags s_addr s_addr
     REWRITESTDADDR	//  msg_value in_msg flags s_addr s_addr_wc s_addr_hash
@@ -300,14 +359,16 @@ PROGRAM{
     NOT	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op in_msg _29
     IF:<{	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op in_msg
       NIP	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount in_msg
-      ~parse_text_command CALLDICT	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount _72 _73
+      ~parse_text_command CALLDICT	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount _119 _120
       NIP	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op
     }>ELSE<{
       DROP	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op
     }>
-    1937006955 PUSHINT	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op _32=1937006955
-    EQUAL	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount _33
-    IFJMP:<{	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount
+    DUP
+    1937006955 PUSHINT	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op op _32=1937006955
+    EQUAL	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op _33
+    IFJMP:<{	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op
+      DROP	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount
       1000000000 PUSHINT	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount stake_fee=1000000000
       s11 s11 XCPU	//  min_stake=1000000000 nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount msg_value stake_fee=1000000000
       SUB	//  min_stake=1000000000 nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount stake
@@ -321,6 +382,8 @@ PROGRAM{
       ADD	//  stake nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount
       s8 s7 PUSH2	//  stake nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount nominators s_addr_hash
       get_nominator_data CALLDICT	//  stake nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount active locked
+      DUP	//  stake nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount active locked locked
+      394 THROWIF
       s1 s11 XCPU	//  stake nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount locked active stake
       ADD	//  stake nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount locked active
       s3 s10 XCHG
@@ -333,8 +396,69 @@ PROGRAM{
       save_data CALLDICT
       SWAP	//  s_addr stake
       send_text_stake_accept_message CALLDICT
-    }>	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount
-    11 BLKDROP	// 
+    }>	//  msg_value nominators s_addr_hash s_addr s_addr_wc seqno owner seed accept_stakes working_amount locked_amount op
+    s7 POP	//  msg_value nominators s_addr_hash s_addr op seqno owner seed accept_stakes working_amount locked_amount
+    s6 PUSH
+    1819239275 PUSHINT	//  msg_value nominators s_addr_hash s_addr op seqno owner seed accept_stakes working_amount locked_amount op _57=1819239275
+    EQUAL	//  msg_value nominators s_addr_hash s_addr op seqno owner seed accept_stakes working_amount locked_amount _58
+    IFJMP:<{	//  msg_value nominators s_addr_hash s_addr op seqno owner seed accept_stakes working_amount locked_amount
+      s6 POP	//  msg_value nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount
+      s0 s9 XCHG
+      1000000000 PUSHINT	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes msg_value lock_fee=1000000000
+      GEQ	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes _62
+      393 THROWIFNOT
+      s7 s6 PUSH2	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes nominators s_addr_hash
+      get_nominator_data CALLDICT	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes active locked
+      394 THROWIF
+      DUP	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes active active
+      NOT	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes active _70
+      395 THROWIF	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes locked
+      0 PUSHINT	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes locked active=0
+      s10 s1 XCPU	//  active=0 nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes locked working_amount locked
+      SUB	//  active=0 nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes locked working_amount
+      s6 s1 XCPU	//  active=0 nominators s_addr_hash s_addr working_amount seqno owner seed accept_stakes locked locked_amount locked
+      ADD	//  active=0 nominators s_addr_hash s_addr working_amount seqno owner seed accept_stakes locked locked_amount
+      s9 s8 s10 XCHG3
+      s8 PUSH	//  locked_amount accept_stakes locked s_addr working_amount seqno owner seed nominators s_addr_hash active=0 locked
+      ~set_nominator_data CALLDICT	//  locked_amount accept_stakes locked s_addr working_amount seqno owner seed nominators
+      s3 s6 XCHG
+      s5 s4 s0 XCHG3
+      s3 s7 XCHG
+      s1 s8 s0 XCHG3	//  s_addr locked seqno owner seed accept_stakes working_amount locked_amount nominators
+      save_data CALLDICT
+      send_text_lock_accept_message CALLDICT
+    }>	//  msg_value nominators s_addr_hash s_addr op seqno owner seed accept_stakes working_amount locked_amount
+    s0 s6 XCHG
+    2003399784 PUSHINT	//  msg_value nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount op _79=2003399784
+    EQUAL	//  msg_value nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount _80
+    IFJMP:<{	//  msg_value nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount
+      s0 s9 XCHG
+      1000000000 PUSHINT	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes msg_value withdraw_fee=1000000000
+      GEQ	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes _84
+      393 THROWIFNOT
+      s7 s6 PUSH2	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes nominators s_addr_hash
+      get_nominator_data CALLDICT	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes active locked
+      DUP	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes active locked locked
+      NOT	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes active locked _90
+      394 THROWIF
+      SWAP	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes locked active
+      NOT	//  working_amount nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes locked _93
+      395 THROWIF
+      s5 s5 XCPU	//  working_amount nominators s_addr_hash s_addr locked seqno owner seed accept_stakes locked_amount locked
+      SUB	//  working_amount nominators s_addr_hash s_addr locked seqno owner seed accept_stakes locked_amount
+      0 PUSHINT	//  working_amount nominators s_addr_hash s_addr locked seqno owner seed accept_stakes locked_amount _97=0
+      DUP	//  working_amount nominators s_addr_hash s_addr locked seqno owner seed accept_stakes locked_amount _97=0 _98=0
+      s3 s10 XCHG
+      s2 s9 XCHG	//  working_amount accept_stakes locked_amount s_addr locked seqno owner seed nominators s_addr_hash _97=0 _98=0
+      ~set_nominator_data CALLDICT	//  working_amount accept_stakes locked_amount s_addr locked seqno owner seed nominators
+      s3 s6 XCHG
+      s5 s4 s0 XCHG3
+      s3 s7 XCHG
+      s8 s7 s0 XCHG3	//  s_addr locked seqno owner seed accept_stakes working_amount locked_amount nominators
+      save_data CALLDICT
+      send_text_withdraw_message CALLDICT
+    }>	//  msg_value nominators s_addr_hash s_addr locked_amount seqno owner seed accept_stakes working_amount
+    10 BLKDROP	// 
     404 THROW
   }>
   recv_external PROC:<{

@@ -52,6 +52,7 @@
 
         ;; Update nominator state
         (int active, int locked) = nominators.get_nominator_data(s_addr_hash);
+        throw_if(394, locked); ;; Do not allow staking when locked
         active = active + stake;
         nominators~set_nominator_data(s_addr_hash, active, locked);
 
@@ -60,6 +61,61 @@
 
         ;; Send response
         send_text_stake_accept_message(s_addr, stake);
+
+        return ();
+    }
+    
+    ;;
+    ;; Lock stake command
+    ;;
+
+    if (op == 0x6c6f636b) {
+        
+        ;; Check inputs
+        int lock_fee = 1000000000; ;; 1 Gram
+        throw_unless(393, msg_value >= lock_fee); ;; Check if message value is more than minimum lock fee
+
+        ;; Lock funds
+        (int active, int locked) = nominators.get_nominator_data(s_addr_hash);
+        throw_if(394, locked); ;; If already locked
+        throw_if(395, ~ active); ;; If nothing to lock
+        locked = active;
+        active = 0;
+        working_amount = working_amount - locked;
+        locked_amount = locked_amount + locked;
+
+        ;; Persist
+        nominators~set_nominator_data(s_addr_hash, active, locked);
+        save_data(seqno, owner, seed, accept_stakes, working_amount, locked_amount, nominators);
+
+        ;; Send response
+        send_text_lock_accept_message(s_addr, locked);
+
+        return ();
+    }
+
+    ;;
+    ;; Withdraw stake command
+    ;;
+
+    if (op == 0x77697468) {
+        
+        ;; Check inputs
+        int withdraw_fee = 1000000000; ;; 1 Gram
+        throw_unless(393, msg_value >= withdraw_fee); ;; Check if message value is more than minimum lock fee
+
+        ;; Adjust balance
+        (int active, int locked) = nominators.get_nominator_data(s_addr_hash);
+        throw_if(394, ~ locked); ;; If not locked
+        throw_if(395, ~ active); ;; If nothing to withdraw (should not be possible)
+        locked_amount = locked_amount - locked;
+
+        ;; Persist
+        nominators~set_nominator_data(s_addr_hash, 0, 0);
+        save_data(seqno, owner, seed, accept_stakes, working_amount, locked_amount, nominators);
+
+        ;; Send response
+        send_text_withdraw_message(s_addr, locked);
 
         return ();
     }
