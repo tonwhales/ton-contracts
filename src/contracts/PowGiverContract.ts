@@ -64,7 +64,7 @@ export class PowGiverContract implements Contract {
         //
 
         return Buffer.concat([
-            Buffer.from([0x0, 0xFA]), // Important prefix: https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L50
+            Buffer.from([0x0, 0xF2]), // Important prefix: https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L50
             Buffer.from('Mine'), // Op
             Buffer.from([0]), // Workchain + Bounce. Set them all to zero.
             createUInt32(expiresSec), // Expire in seconds
@@ -113,6 +113,7 @@ export class PowGiverContract implements Contract {
      */
     static async checkMiningJobHash(args: { seed: Buffer, random: Buffer, wallet: Address, expiresSec: number, hash: Buffer }) {
         const job = PowGiverContract.createMiningJob({ seed: args.seed, random: args.random, wallet: args.wallet, expiresSec: args.expiresSec });
+        console.warn(job.toString('hex'));
         const hash = await sha256(job);
         return args.hash.equals(hash);
     }
@@ -141,8 +142,8 @@ export class PowGiverContract implements Contract {
         //
 
         const body = Buffer.concat([
-            // Note that 0x00FA are not in the message, but it is a part of a hashing job
-            // Buffer.from([0x0, 0xFA]), // Important prefix: https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L50
+            // Note that 0x00F2 are not in the message, but it is a part of a hashing job
+            // Buffer.from([0x0, 0xF2]), // Important prefix: https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L50
             Buffer.from('Mine'), // Op
             Buffer.from([0]), // Workchain * 4 + Bounce. Set them all to zero.
             createUInt32(args.expiresSec), // Expire in seconds
