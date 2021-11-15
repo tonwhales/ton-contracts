@@ -113,7 +113,6 @@ export class PowGiverContract implements Contract {
      */
     static async checkMiningJobHash(args: { seed: Buffer, random: Buffer, wallet: Address, expiresSec: number, hash: Buffer }) {
         const job = PowGiverContract.createMiningJob({ seed: args.seed, random: args.random, wallet: args.wallet, expiresSec: args.expiresSec });
-        console.warn(job.toString('hex'));
         const hash = await sha256(job);
         return args.hash.equals(hash);
     }
