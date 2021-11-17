@@ -157,6 +157,9 @@ export class ElectorContract implements Contract {
             let pubkey = Buffer.from(new BN(e.tuple.elements[0].number.number).toString('hex'), 'hex');
             let stake = new BN(e.tuple.elements[1].tuple.elements[0].number.number);
             let addrraw = new BN(e.tuple.elements[1].tuple.elements[2].number.number).toString('hex');
+            while (addrraw.length < 64) {
+                addrraw = '0' + addrraw;
+            }
             let address = new Address(-1, Buffer.from(addrraw, 'hex'));
             let adnl = Buffer.from(new BN(e.tuple.elements[1].tuple.elements[3].number.number).toString('hex'), 'hex');
             entities.push({ pubkey, stake: stake, address, adnl });
