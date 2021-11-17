@@ -36,7 +36,7 @@ export class PowGiverContract implements Contract {
      * @param cell state cell
      * @returns seed and complexity
      */
-    static async extractPowParamsFromState(cell: Cell) {
+    static extractPowParamsFromState(cell: Cell) {
 
         // Reimplementation
         // https://github.com/ton-blockchain/ton/blob/24dc184a2ea67f9c47042b4104bbb4d82289fac1/crypto/smartcont/pow-testgiver-code.fc#L146
