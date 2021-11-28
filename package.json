@@ -2,7 +2,7 @@
   "name": "ton-contracts",
   "version": "2.0.0",
   "main": "dist/index.js",
-  "repository": "https://github.com/ex3ndr/ton-contracts.git",
+  "repository": "https://github.com/tonwhales/ton-contracts.git",
   "author": "Steve Korshakov <steve@korshakov.com>",
   "license": "MIT",
   "files": [
