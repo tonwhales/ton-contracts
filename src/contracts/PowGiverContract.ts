@@ -1,4 +1,4 @@
-import { Address, Contract, UnknownContractSource, TonClient, Cell, BitStringReader, BitString, ExternalMessage, CommonMessageInfo, RawMessage, BinaryMessage } from "ton";
+import { Address, Contract, UnknownContractSource, TonClient, Cell, BitStringReader, BitString, ExternalMessage, CommonMessageInfo, RawMessage, BinaryMessage, Slice } from "ton";
 import { sha256 } from "ton-crypto";
 import { createUInt32 } from "./utils/createUInt32";
 
@@ -24,10 +24,48 @@ function parseHex(src: string) {
     return Buffer.from(src, 'hex');
 }
 
+export type ParsedMiningMessage = {
+    op: 'mine',
+    bounce: boolean,
+    expire: number,
+    address: Address,
+    random: Buffer,
+    seed: Buffer
+}
+
 export class PowGiverContract implements Contract {
 
     static async create(address: Address, client: TonClient) {
         return new PowGiverContract(address, client);
+    }
+
+
+    static parseMiningMessage(slice: Slice): ParsedMiningMessage | null {
+        const op = slice.readUintNumber(32);
+        if (op === 0x4d696e65 /* Mine */) {
+            const flags = slice.readIntNumber(8);
+            const expire = slice.readUintNumber(32);
+            const bounce = !!(flags & 1);
+            const addressWc = flags >> 2;
+            const addressHash = slice.readBuffer(32);
+            const address = new Address(addressWc, addressHash);
+            const random1 = slice.readBuffer(32);
+            const seed = slice.readBuffer(16);
+            const random2 = slice.readBuffer(32);
+            if (!random1.equals(random2)) {
+                throw Error('Random mismatch');
+            }
+            return {
+                op: 'mine',
+                bounce,
+                expire,
+                address,
+                random: random1,
+                seed
+            }
+        }
+
+        return null;
     }
 
     /**

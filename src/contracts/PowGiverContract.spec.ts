@@ -53,4 +53,28 @@ describe('PowGiverContract', () => {
         });
         expect(res).toBe(true);
     });
+
+    it('should parse pow giver message', async () => {
+        const cell = Cell.fromBoc(Buffer.from('te6cckEBAQEAewAA8k1pbmUAYaOB/QAWGNfMq5Dk3Rz3qex1lBYBNwmb3T0thJoIC9YXFUk/QlrMM6dKTDdd8OnD8NObEAAAAAAAV2uEhAAAAA8AAACDSJ2epCU+cIujTv7nzc1IQlrMM6dKTDdd8OnD8NObEAAAAAAAV2uEhAAAAA8AAABj6jgW', 'base64'))[0];
+        const parsed = PowGiverContract.parseMiningMessage(cell.beginParse())!;
+        expect(parsed).not.toBeNull();
+        expect(parsed).not.toBeUndefined();
+        expect(parsed.op).toBe('mine');
+        expect(parsed.address.toFriendly()).toEqual('EQAAFhjXzKuQ5N0c96nsdZQWATcJm909LYSaCAvWFxVJP80D');
+        expect(parsed.seed).toEqual(Buffer.from('83489d9ea4253e708ba34efee7cdcd48', 'hex'));
+        expect(parsed.random).toEqual(Buffer.from('425acc33a74a4c375df0e9c3f0d39b100000000000576b84840000000f000000', 'hex'));
+    });
+
+    it('should parse pow giver message from masterchain', async () => {
+        const cell = Cell.fromBoc(Buffer.from('te6cckEBAQEAewAA8k1pbmX8Xz4yT0h3NIIqk9FQKQWkLS2FYzDXjMm+hValSGMGlDb8Bxs7fxx5vJl6bIuDwi6f3QdfKtv1QalzCb5LrNbh3TiScIUmeGg5wci/1mQDip86Y2twfxx5vJl6bIuDwi6f3QdfKtv1QalzCb5LrNbh3TiScIXpl/qP', 'base64'))[0];
+        const parsed = PowGiverContract.parseMiningMessage(cell.beginParse())!;
+        expect(parsed).not.toBeNull();
+        expect(parsed).not.toBeUndefined();
+        expect(parsed.op).toBe('mine');
+        expect(parsed.address.toFriendly()).toEqual('Ef9IdzSCKpPRUCkFpC0thWMw14zJvoVWpUhjBpQ2_AcbOwud');
+        expect(parsed.bounce).toBe(false);
+        expect(parsed.expire).toBe(1597911631);
+        expect(parsed.seed).toEqual(Buffer.from('26786839c1c8bfd664038a9f3a636b70', 'hex'));
+        expect(parsed.random).toEqual(Buffer.from('7f1c79bc997a6c8b83c22e9fdd075f2adbf541a97309be4bacd6e1dd38927085', 'hex'));
+    });
 });

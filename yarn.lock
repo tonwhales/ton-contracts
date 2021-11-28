@@ -3206,10 +3206,10 @@ ton-crypto@1.6.0:
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-ton@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-5.0.0.tgz#3b94936417040448c216799e06a6d250da552531"
-  integrity sha512-UjUkaMJFVYcUNmbNhqGwikhu/3X2LPomdvFB8ntsKYfQTWXOgZzpEMYgI3cUSiYOYfMxzG1OaTOHKWEjYAdUeQ==
+ton@6.2.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-6.2.1.tgz#b4ba25c19a6877b455abce33707a7364bba344c1"
+  integrity sha512-8xApUAO5qvL5mCTxXXHMD97lkvxozx11Si+25AwR2w/hmpjVEhnEdmBrOwpxPd1WRodKBl8ETQZCyhUda68RRA==
   dependencies:
     bn.js "5.2.0"
     dataloader "^2.0.0"
