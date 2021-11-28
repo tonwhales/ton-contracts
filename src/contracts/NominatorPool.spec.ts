@@ -10,7 +10,7 @@ const client = new TonClient({ endpoint: 'https://testnet.toncenter.com/api/v2/j
 
 function parseData(data: Buffer) {
     let res = Cell.fromBoc(data)[0];
-    const slice = new Slice(res);
+    const slice = Slice.fromCell(res);
     const seqno = slice.readUint(32);
     const owner = slice.readAddress();
     const seed = slice.readBuffer(32);

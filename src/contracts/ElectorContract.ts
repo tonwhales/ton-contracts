@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, BitString, Cell, Contract, ContractSource, Message, parseDict, RawMessage, TonClient, UnknownContractSource } from "ton";
+import { Address, BitString, Cell, CellMessage, Contract, ContractSource, Message, parseDict, RawMessage, TonClient, UnknownContractSource } from "ton";
 import { sign, signVerify } from "ton-crypto";
 
 export class ElectorContract implements Contract {
@@ -66,7 +66,7 @@ export class ElectorContract implements Contract {
         const sig = new Cell();
         sig.bits.writeBuffer(args.signature);
         cell.refs.push(sig);
-        return new RawMessage(cell);
+        return new CellMessage(cell);
     }
 
     /**
