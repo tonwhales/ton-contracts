@@ -104,7 +104,7 @@ export class PowGiverContract implements Contract {
         return Buffer.concat([
             Buffer.from([0x0, 0xF2]), // Important prefix: https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L50
             Buffer.from('Mine'), // Op
-            Buffer.from([0]), // Workchain + Bounce. Set them all to zero.
+            Buffer.from([wallet.workChain === 0 ? 0 : 0xFC]), // Workchain + Bounce (zero)
             createUInt32(expiresSec), // Expire in seconds
             wallet.hash // Wallet hash
         ]);
@@ -119,14 +119,6 @@ export class PowGiverContract implements Contract {
      * @returns Buffer of job
      */
     static createMiningJob(args: { seed: Buffer, random: Buffer, wallet: Address, expiresSec: number }) {
-
-        //
-        // Check address
-        // 
-
-        if (args.wallet.workChain !== 0) {
-            throw Error('Only walelts in basic workchain are supported');
-        }
 
         //
         // https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L57
@@ -167,14 +159,6 @@ export class PowGiverContract implements Contract {
     static createMiningMessage(args: { giver: Address, seed: Buffer, random: Buffer, wallet: Address, expiresSec: number }) {
 
         //
-        // Check address
-        // 
-
-        if (args.wallet.workChain !== 0) {
-            throw Error('Only walelts in basic workchain are supported');
-        }
-
-        //
         // Message body
         //
 
@@ -182,7 +166,7 @@ export class PowGiverContract implements Contract {
             // Note that 0x00F2 are not in the message, but it is a part of a hashing job
             // Buffer.from([0x0, 0xF2]), // Important prefix: https://github.com/ton-blockchain/ton/blob/15dfedd371f1dfc4502ab53c6ed99deb1922ab1a/crypto/util/Miner.cpp#L50
             Buffer.from('Mine'), // Op
-            Buffer.from([0]), // Workchain * 4 + Bounce. Set them all to zero.
+            Buffer.from([args.wallet.workChain === 0 ? 0 : 0xFC]), // Workchain * 4 + Bounce. Set them all to zero.
             createUInt32(args.expiresSec), // Expire in seconds
             args.wallet.hash, // Wallet hash,
             args.random, // Random
