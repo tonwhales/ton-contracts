@@ -1,3 +1,4 @@
+import BN from "bn.js";
 import { Address, Contract, UnknownContractSource, TonClient, Cell, BitStringReader, BitString, ExternalMessage, CommonMessageInfo, RawMessage, BinaryMessage, Slice } from "ton";
 import { sha256 } from "ton-crypto";
 import { createUInt32 } from "./utils/createUInt32";
@@ -9,6 +10,14 @@ function padded(data: Buffer, size: number) {
         res[i + (size - data.length)] = data[i];
     }
     return res;
+}
+
+function paddedBnToBuffer(src: BN, size: number) {
+    let rs = src.toString('hex');
+    while (rs.length < size * 2) {
+        rs = '0' + rs;
+    }
+    return Buffer.from(rs, 'hex');
 }
 
 function parseHex(src: string) {
@@ -80,12 +89,26 @@ export class PowGiverContract implements Contract {
         // https://github.com/ton-blockchain/ton/blob/24dc184a2ea67f9c47042b4104bbb4d82289fac1/crypto/smartcont/pow-testgiver-code.fc#L146
 
         const reader = new BitStringReader(cell.bits);
-        reader.skip(32 + 32 + 256);
+        const seqno = reader.readUint(64);
+        const publicKey = reader.readBuffer(32);
         const seed = reader.readBuffer(128 / 8);
         const complexity = reader.readBuffer(256 / 8);
+        const lastSuccess = reader.readUintNumber(32);
+        const xdata = new BitStringReader(cell.refs[0].bits);
+        const target = xdata.readCoins();
+        const targetDelta = xdata.readUintNumber(32);
+        const minComplexity = paddedBnToBuffer(new BN(1).shln(xdata.readUintNumber(8)), 32);
+        const maxComplexity = paddedBnToBuffer(new BN(1).shln(xdata.readUintNumber(8)), 32);
         return {
+            seqno,
+            publicKey,
             seed,
-            complexity
+            complexity,
+            lastSuccess,
+            target,
+            targetDelta,
+            minComplexity,
+            maxComplexity
         }
     }
 

@@ -2,7 +2,7 @@ import { Address, Cell, TonClient } from "ton";
 import { PowGiverContract } from "..";
 
 const client = new TonClient({ endpoint: 'https://toncenter.com/api/v2/jsonRPC' });
-const address = Address.parse('kf-kkdY_B7p-77TLn2hUhM6QidWrrsl8FYWCIvBMpZKprBtN');
+const address = Address.parse('Ef-P_TOdwcCh0AXHhBpICDMxStxHenWdLCDLNH5QcNpwMMn2');
 
 describe('PowGiverContract', () => {
     it('should get resulsts', async () => {
