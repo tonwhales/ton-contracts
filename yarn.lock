@@ -3182,10 +3182,10 @@ to-regex-range@^5.0.1:
   dependencies:
     is-number "^7.0.0"
 
-ton-compiler@0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/ton-compiler/-/ton-compiler-0.7.0.tgz#e462379b54e8c831dcb9d982f068421c80c45389"
-  integrity sha512-S/ICekBM65S5+TLfDIxTiu92dyBlxuzKmXPs+z+9YHa5IlizI1uwTgExJOylvPL++wJkHb/KC/nHblhX0WahJw==
+ton-compiler@0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/ton-compiler/-/ton-compiler-0.9.0.tgz#c8a3421b65122332c7f6372ddd39848614f2a670"
+  integrity sha512-7ZyjmSSmI8s/hd+H3c8qCzvUxDWLml4T8Lhr3DNAucadWhAXiVniTgPHHQNt5nbfZMvHKGevGw18pRkf5cFBZA==
   dependencies:
     arg "^5.0.1"
     tmp "^0.2.1"
@@ -3206,10 +3206,10 @@ ton-crypto@1.6.0:
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-ton@6.2.1:
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/ton/-/ton-6.2.1.tgz#b4ba25c19a6877b455abce33707a7364bba344c1"
-  integrity sha512-8xApUAO5qvL5mCTxXXHMD97lkvxozx11Si+25AwR2w/hmpjVEhnEdmBrOwpxPd1WRodKBl8ETQZCyhUda68RRA==
+ton@6.3.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/ton/-/ton-6.3.0.tgz#ae3508c29f203edce0f1818275b981852a0e77f8"
+  integrity sha512-R9zE3a9Ww4GaiDDyjPhtjZgl+QT9QZ01tnR7SYV4hfDaVl+p3drDwshnRtNC7Bw0ebS9LUkCiTr6J6n8KZubfg==
   dependencies:
     bn.js "5.2.0"
     dataloader "^2.0.0"

@@ -5,6 +5,10 @@ ton-compiler --fift --input ./contracts/wallet.fc --output ./contracts/wallet.fi
 ton-compiler --input ./contracts/wallet.fc --output ./contracts/wallet.cell
 openssl base64 -A -in ./contracts/wallet.cell -out ./contracts/wallet.cell.base64
 
+ton-compiler --fift --input ./contracts/highload-wallet.fc --output ./contracts/highload-wallet.fif
+ton-compiler --input ./contracts/highload-wallet.fc --output ./contracts/highload-wallet.cell
+openssl base64 -A -in ./contracts/highload-wallet.cell -out ./contracts/highload-wallet.cell.base64
+
 ton-compiler --fift --input ./contracts/simple-wallet-code.fc --output ./contracts/simple-wallet-code.fif
 ton-compiler --input ./contracts/simple-wallet-code.fc --output ./contracts/simple-wallet-code.cell
 openssl base64 -A -in ./contracts/simple-wallet-code.cell -out ./contracts/simple-wallet-code.cell.base64
