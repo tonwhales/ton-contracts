@@ -97,8 +97,10 @@ export class PowGiverContract implements Contract {
         const xdata = new BitStringReader(cell.refs[0].bits);
         const target = xdata.readCoins();
         const targetDelta = xdata.readUintNumber(32);
-        const minComplexity = paddedBnToBuffer(new BN(1).shln(xdata.readUintNumber(8)), 32);
-        const maxComplexity = paddedBnToBuffer(new BN(1).shln(xdata.readUintNumber(8)), 32);
+        const minComplexityShift = xdata.readUintNumber(8);
+        const maxComplexityShift = xdata.readUintNumber(8);
+        const minComplexity = paddedBnToBuffer(new BN(1).shln(minComplexityShift), 32);
+        const maxComplexity = paddedBnToBuffer(new BN(1).shln(maxComplexityShift), 32);
         return {
             seqno,
             publicKey,
@@ -108,7 +110,9 @@ export class PowGiverContract implements Contract {
             target,
             targetDelta,
             minComplexity,
-            maxComplexity
+            minComplexityShift,
+            maxComplexity,
+            maxComplexityShift
         }
     }
 
