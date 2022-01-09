@@ -15,23 +15,29 @@ export class HighloadWalletMessage implements Message {
     }
 
     writeTo(cell: Cell): void {
-
-        // Build dict
-        const dict = new Map<string, { sendMode: SendMode, order: InternalMessage }>();
-        for (let i = 0; i < this.messages.length; i++) {
-            dict.set('' + i, this.messages[i]);
-        }
-        const dictCell = serializeDict(dict, 16, (src, cell) => {
-            cell.bits.writeUint8(src.sendMode);
-            const d = new Cell();
-            src.order.writeTo(d);
-            cell.refs.push(d);
-        });
-
+        
         // Message
         cell.bits.writeUint(this.walletId, 32);
         cell.bits.writeUint(this.timeout, 32);
         cell.bits.writeUint(this.seqno, 32);
-        cell.refs.push(dictCell);
+
+        // Dict
+        if (this.messages.length > 0) {
+            const dict = new Map<string, { sendMode: SendMode, order: InternalMessage }>();
+            for (let i = 0; i < this.messages.length; i++) {
+                dict.set('' + i, this.messages[i]);
+            }
+            const dictCell = serializeDict(dict, 16, (src, cell) => {
+                cell.bits.writeUint8(src.sendMode);
+                const d = new Cell();
+                src.order.writeTo(d);
+                cell.refs.push(d);
+            });
+
+            cell.bits.writeBit(true);
+            cell.refs.push(dictCell);
+        } else {
+            cell.bits.writeBit(false);
+        }
     }
 }

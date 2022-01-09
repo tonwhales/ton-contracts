@@ -29,6 +29,10 @@ ton-compiler --fift --input ./contracts/validator-controller.fc --output ./contr
 ton-compiler --input ./contracts/validator-controller.fc --output ./contracts/validator-controller.cell
 openssl base64 -A -in ./contracts/validator-controller.cell  -out ./contracts/validator-controller.cell.base64
 
+ton-compiler --fift --input ./contracts/wallet-v4.fc --output ./contracts/wallet-v4.fif
+ton-compiler --input ./contracts/wallet-v4.fc --output ./contracts/wallet-v4.cell
+openssl base64 -A -in ./contracts/wallet-v4.cell  -out ./contracts/wallet-v4.cell.base64
+
 ton-compiler --fift --output ./contracts/nominator-pool.fif \
     --input ./contracts/nominator-pool-utils.fc \
     --input ./contracts/nominator-pool-storage.fc \

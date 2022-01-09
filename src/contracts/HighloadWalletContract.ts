@@ -2,7 +2,7 @@ import { Address, Cell, InternalMessage, TonClient } from 'ton';
 import { sign } from 'ton-crypto';
 import { HighloadWalletMessage } from './messages/HighloadWalletMessage';
 
-export class HighloadWallet {
+export class HighloadWalletContract {
     readonly address: Address;
     readonly client: TonClient;
 

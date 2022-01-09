@@ -1,0 +1,409 @@
+PROGRAM{
+  DECLPROC recv_internal
+  DECLPROC recv_external
+  85143 DECLMETHOD seqno
+  81467 DECLMETHOD get_subwallet_id
+  78748 DECLMETHOD get_public_key
+  76407 DECLMETHOD is_plugin_installed
+  107653 DECLMETHOD get_plugin_list
+  recv_internal PROC:<{
+    //  msg_value in_msg_cell in_msg
+    SWAP	//  msg_value in_msg in_msg_cell
+    CTOS	//  msg_value in_msg cs
+    4 LDU	//  msg_value in_msg flags cs
+    OVER
+    1 PUSHINT	//  msg_value in_msg flags cs flags _9=1
+    AND	//  msg_value in_msg flags cs _10
+    IFJMP:<{	//  msg_value in_msg flags cs
+      4 BLKDROP	// 
+    }>	//  msg_value in_msg flags cs
+    s2 PUSH	//  msg_value in_msg flags cs in_msg
+    SBITS	//  msg_value in_msg flags cs _11
+    32 LESSINT	//  msg_value in_msg flags cs _13
+    IFJMP:<{	//  msg_value in_msg flags cs
+      4 BLKDROP	// 
+    }>	//  msg_value in_msg flags cs
+    s0 s2 XCHG	//  msg_value cs flags in_msg
+    32 LDU	//  msg_value cs flags op in_msg
+    OVER
+    1886156135 PUSHINT	//  msg_value cs flags op in_msg op _18=1886156135
+    NEQ	//  msg_value cs flags op in_msg _19
+    s2 PUSH
+    1685288050 PUSHINT	//  msg_value cs flags op in_msg _19 op _20=1685288050
+    NEQ	//  msg_value cs flags op in_msg _19 _21
+    AND	//  msg_value cs flags op in_msg _22
+    IFJMP:<{	//  msg_value cs flags op in_msg
+      5 BLKDROP	// 
+    }>	//  msg_value cs flags op in_msg
+    s0 s3 XCHG	//  msg_value in_msg flags op cs
+    LDMSGADDR	//  msg_value in_msg flags op _166 _165
+    DROP	//  msg_value in_msg flags op s_addr
+    DUP	//  msg_value in_msg flags op s_addr s_addr
+    REWRITESTDADDR	//  msg_value in_msg flags op s_addr wc addr_hash
+    SWAP
+    NEWC	//  msg_value in_msg flags op s_addr addr_hash wc _30
+    8 STI	//  msg_value in_msg flags op s_addr addr_hash _32
+    256 STU	//  msg_value in_msg flags op s_addr _34
+    ENDC	//  msg_value in_msg flags op s_addr _35
+    CTOS	//  msg_value in_msg flags op s_addr wc_n_address
+    c4 PUSH	//  msg_value in_msg flags op s_addr wc_n_address _38
+    CTOS	//  msg_value in_msg flags op s_addr wc_n_address _39
+    320 PUSHINT	//  msg_value in_msg flags op s_addr wc_n_address _39 _44
+    SDSKIPFIRST	//  msg_value in_msg flags op s_addr wc_n_address ds
+    LDDICT	//  msg_value in_msg flags op s_addr wc_n_address _170 _169
+    DROP	//  msg_value in_msg flags op s_addr wc_n_address plugins
+    2DUP
+    264 PUSHINT	//  msg_value in_msg flags op s_addr wc_n_address plugins wc_n_address plugins _53
+    DICTGET
+    NULLSWAPIFNOT	//  msg_value in_msg flags op s_addr wc_n_address plugins _171 _172
+    NIP	//  msg_value in_msg flags op s_addr wc_n_address plugins success?
+    NOT	//  msg_value in_msg flags op s_addr wc_n_address plugins _55
+    IFJMP:<{	//  msg_value in_msg flags op s_addr wc_n_address plugins
+      7 BLKDROP	// 
+    }>	//  msg_value in_msg flags op s_addr wc_n_address plugins
+    s0 s5 XCHG	//  msg_value plugins flags op s_addr wc_n_address in_msg
+    64 LDU	//  msg_value plugins flags op s_addr wc_n_address query_id in_msg
+    NEWC	//  msg_value plugins flags op s_addr wc_n_address query_id in_msg msg
+    s5 PUSH
+    1886156135 PUSHINT	//  msg_value plugins flags op s_addr wc_n_address query_id in_msg msg op _62=1886156135
+    EQUAL	//  msg_value plugins flags op s_addr wc_n_address query_id in_msg msg _63
+    IF:<{	//  msg_value plugins flags op s_addr wc_n_address query_id in_msg msg
+      SWAP	//  msg_value plugins flags op s_addr wc_n_address query_id msg in_msg
+      LDGRAMS	//  msg_value plugins flags op s_addr wc_n_address query_id msg _66 in_msg
+      LDDICT	//  msg_value plugins flags op s_addr wc_n_address query_id msg _66 _178 _177
+      DROP	//  msg_value plugins flags op s_addr wc_n_address query_id msg r_toncoins r_extra
+      BALANCE	//  msg_value plugins flags op s_addr wc_n_address query_id msg r_toncoins r_extra _72
+      UNPAIR	//  msg_value plugins flags op s_addr wc_n_address query_id msg r_toncoins r_extra _179 _180
+      DROP	//  msg_value plugins flags op s_addr wc_n_address query_id msg r_toncoins r_extra my_balance
+      s0 s10 XCHG2	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins my_balance msg_value
+      SUB	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins _75
+      OVER	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins _75 r_toncoins
+      GEQ	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins _76
+      80 THROWIFNOT
+      1886156135 PUSHINT	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins _78=1886156135
+      31 PUSHPOW2	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins _78=1886156135 _79=2147483648
+      OR	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins _80
+      0 PUSHINT	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins _80 _81=0
+      24 PUSHINT	//  r_extra plugins flags op s_addr wc_n_address query_id msg r_toncoins _80 _81=0 _82=24
+      s0 s4 XCHG2	//  r_extra plugins flags op s_addr wc_n_address query_id _81=0 r_toncoins _80 _82=24 msg
+      6 STU	//  r_extra plugins flags op s_addr wc_n_address query_id _81=0 r_toncoins _80 _84
+      s6 PUSH	//  r_extra plugins flags op s_addr wc_n_address query_id _81=0 r_toncoins _80 _84 s_addr
+      STSLICER	//  r_extra plugins flags op s_addr wc_n_address query_id _81=0 r_toncoins _80 _85
+      ROT	//  r_extra plugins flags op s_addr wc_n_address query_id _81=0 _80 _85 r_toncoins
+      STGRAMS	//  r_extra plugins flags op s_addr wc_n_address query_id _81=0 _80 _86
+      s1 s9 XCHG	//  _80 plugins flags op s_addr wc_n_address query_id _81=0 r_extra _86
+      STDICT	//  _80 plugins flags op s_addr wc_n_address query_id _81=0 _87
+      106 STU	//  _80 plugins flags op s_addr wc_n_address query_id _99
+      s1 s7 XCHG	//  query_id plugins flags op s_addr wc_n_address _80 _99
+      32 STU	//  query_id plugins flags op s_addr wc_n_address _101
+      s6 s(-1) PUXC	//  query_id plugins flags op s_addr wc_n_address query_id _101
+      64 STU	//  query_id plugins flags op s_addr wc_n_address msg
+      DUP	//  query_id plugins flags op s_addr wc_n_address msg msg
+      ENDC	//  query_id plugins flags op s_addr wc_n_address msg _104
+      64 PUSHINT	//  query_id plugins flags op s_addr wc_n_address msg _104 _105=64
+      SENDRAWMSG
+      s0 s6 XCHG	//  msg plugins flags op s_addr wc_n_address query_id
+    }>ELSE<{
+      s8 POP
+      DROP	//  msg plugins flags op s_addr wc_n_address query_id
+    }>
+    s0 s3 XCHG
+    1685288050 PUSHINT	//  msg plugins flags query_id s_addr wc_n_address op _107=1685288050
+    EQUAL	//  msg plugins flags query_id s_addr wc_n_address _108
+    IF:<{	//  msg plugins flags query_id s_addr wc_n_address
+      s0 s4 XCHG2
+      264 PUSHINT	//  msg s_addr flags query_id wc_n_address plugins _112
+      DICTDEL	//  msg s_addr flags query_id _181 _182
+      DROP	//  msg s_addr flags query_id plugins
+      c4 PUSH	//  msg s_addr flags query_id plugins _115
+      CTOS	//  msg s_addr flags query_id plugins _116
+      320 PUSHINT	//  msg s_addr flags query_id plugins _116 _121
+      SDCUTFIRST	//  msg s_addr flags query_id plugins ds
+      NEWC	//  msg s_addr flags query_id plugins ds _123
+      SWAP	//  msg s_addr flags query_id plugins _123 ds
+      STSLICER	//  msg s_addr flags query_id plugins _124
+      STDICT	//  msg s_addr flags query_id _125
+      ENDC	//  msg s_addr flags query_id _126
+      c4 POP
+      SWAP
+      2 PUSHINT	//  msg s_addr query_id flags _128=2
+      AND	//  msg s_addr query_id _129
+      IF:<{	//  msg s_addr query_id
+        1685288050 PUSHINT	//  msg s_addr query_id _130=1685288050
+        31 PUSHPOW2	//  msg s_addr query_id _130=1685288050 _131=2147483648
+        OR	//  msg s_addr query_id _132
+        0 PUSHINT	//  msg s_addr query_id _132 _133=0
+        24 PUSHINT	//  msg s_addr query_id _132 _133=0 _134=24
+        s0 s5 XCHG2	//  _133=0 s_addr query_id _132 _134=24 msg
+        6 STU	//  _133=0 s_addr query_id _132 _136
+        s0 s3 XCHG2	//  _133=0 _132 query_id _136 s_addr
+        STSLICER	//  _133=0 _132 query_id _137
+        s3 PUSH	//  _133=0 _132 query_id _137 _138=0
+        STGRAMS	//  _133=0 _132 query_id _139
+        s1 s3 XCHG	//  query_id _132 _133=0 _139
+        107 STU	//  query_id _132 _153
+        32 STU	//  query_id _155
+        64 STU	//  msg
+        ENDC	//  _158
+        64 PUSHINT	//  _158 _159=64
+        SENDRAWMSG
+      }>ELSE<{
+        3 BLKDROP	// 
+      }>
+    }>ELSE<{
+      6 BLKDROP	// 
+    }>
+  }>
+  recv_external PROC:<{
+    //  in_msg
+    9 PUSHPOW2	//  in_msg _3=512
+    LDSLICEX	//  signature in_msg
+    DUP	//  signature in_msg cs
+    32 LDU	//  signature in_msg _9 cs
+    32 LDU	//  signature in_msg _9 _12 cs
+    32 LDU	//  signature in_msg subwallet_id valid_until msg_seqno cs
+    s0 s2 XCHG
+    NOW	//  signature in_msg subwallet_id cs msg_seqno valid_until _19
+    LEQ	//  signature in_msg subwallet_id cs msg_seqno _20
+    36 THROWIF
+    c4 PUSH	//  signature in_msg subwallet_id cs msg_seqno _23
+    CTOS	//  signature in_msg subwallet_id cs msg_seqno ds
+    32 LDU	//  signature in_msg subwallet_id cs msg_seqno _29 ds
+    32 LDU	//  signature in_msg subwallet_id cs msg_seqno _29 _32 ds
+    256 LDU	//  signature in_msg subwallet_id cs msg_seqno _29 _32 _35 ds
+    LDDICT	//  signature in_msg subwallet_id cs msg_seqno stored_seqno stored_subwallet public_key plugins ds
+    ENDS
+    s4 s3 XCPU	//  signature in_msg subwallet_id cs plugins stored_seqno stored_subwallet public_key msg_seqno stored_seqno
+    EQUAL	//  signature in_msg subwallet_id cs plugins stored_seqno stored_subwallet public_key _42
+    33 THROWIFNOT
+    s5 s1 XCPU	//  signature in_msg public_key cs plugins stored_seqno stored_subwallet subwallet_id stored_subwallet
+    EQUAL	//  signature in_msg public_key cs plugins stored_seqno stored_subwallet _45
+    34 THROWIFNOT
+    s0 s5 XCHG	//  signature stored_subwallet public_key cs plugins stored_seqno in_msg
+    HASHSU	//  signature stored_subwallet public_key cs plugins stored_seqno _48
+    s0 s6 s4 XC2PU	//  stored_seqno stored_subwallet public_key cs plugins _48 signature public_key
+    CHKSIGNU	//  stored_seqno stored_subwallet public_key cs plugins _49
+    35 THROWIFNOT
+    ACCEPT
+    s4 PUSH	//  stored_seqno stored_subwallet public_key cs plugins stored_seqno
+    INC	//  stored_seqno stored_subwallet public_key cs plugins _53
+    NEWC	//  stored_seqno stored_subwallet public_key cs plugins _53 _54
+    32 STU	//  stored_seqno stored_subwallet public_key cs plugins _56
+    s4 s(-1) PUXC	//  stored_seqno stored_subwallet public_key cs plugins stored_subwallet _56
+    32 STU	//  stored_seqno stored_subwallet public_key cs plugins _58
+    s3 s(-1) PUXC	//  stored_seqno stored_subwallet public_key cs plugins public_key _58
+    256 STU	//  stored_seqno stored_subwallet public_key cs plugins _60
+    s1 s(-1) PUXC	//  stored_seqno stored_subwallet public_key cs plugins plugins _60
+    STDICT	//  stored_seqno stored_subwallet public_key cs plugins _61
+    ENDC	//  stored_seqno stored_subwallet public_key cs plugins _62
+    c4 POP
+    COMMIT
+    SWAP	//  stored_seqno stored_subwallet public_key plugins cs
+    8 LDU	//  stored_seqno stored_subwallet public_key plugins op cs
+    OVER	//  stored_seqno stored_subwallet public_key plugins op cs op
+    0 EQINT	//  stored_seqno stored_subwallet public_key plugins op cs _72
+    IFJMP:<{	//  stored_seqno stored_subwallet public_key plugins op cs
+      5 1 BLKDROP2	//  cs
+      WHILE:<{
+        DUP	//  cs cs
+        SREFS	//  cs _73
+      }>DO<{	//  cs
+        8 LDU	//  mode cs
+        LDREF	//  mode _78 cs
+        s0 s2 XCHG	//  cs _78 mode
+        SENDRAWMSG
+      }>	//  cs
+      DROP	// 
+    }>	//  stored_seqno stored_subwallet public_key plugins op cs
+    OVER	//  stored_seqno stored_subwallet public_key plugins op cs op
+    1 EQINT	//  stored_seqno stored_subwallet public_key plugins op cs _82
+    IF:<{	//  stored_seqno stored_subwallet public_key plugins op cs
+      8 LDI	//  stored_seqno stored_subwallet public_key plugins op plugin_workchain cs
+      LDGRAMS	//  stored_seqno stored_subwallet public_key plugins op plugin_workchain plugin_balance cs
+      LDREF	//  stored_seqno stored_subwallet public_key plugins op plugin_workchain plugin_balance _92 cs
+      LDREF	//  stored_seqno stored_subwallet public_key plugins op plugin_workchain plugin_balance state_init body cs
+      s2 PUSH	//  stored_seqno stored_subwallet public_key plugins op plugin_workchain plugin_balance state_init body cs state_init
+      HASHCU	//  stored_seqno stored_subwallet public_key plugins op plugin_workchain plugin_balance state_init body cs plugin_address
+      s0 s5 XCHG
+      NEWC	//  stored_seqno stored_subwallet public_key plugins op plugin_address plugin_balance state_init body cs plugin_workchain _99
+      8 STI	//  stored_seqno stored_subwallet public_key plugins op plugin_address plugin_balance state_init body cs _101
+      s1 s5 XCHG	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body plugin_address _101
+      256 STU	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body _103
+      ENDC	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body _104
+      CTOS	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address
+      7 PUSHINT	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address _111
+      4 PUSHINT	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address _111 _112=4
+      24 PUSHINT	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address _111 _112=4 _113=24
+      NEWC	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address _111 _112=4 _113=24 _114
+      6 STU	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address _111 _112=4 _116
+      3 STU	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address _111 _118
+      s2 PUSH	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address _111 _118 wc_n_address
+      STSLICER	//  stored_seqno stored_subwallet public_key plugins op cs plugin_balance state_init body wc_n_address _111 _119
+      s0 s5 XCHG2	//  stored_seqno stored_subwallet public_key plugins op cs _111 state_init body wc_n_address _119 plugin_balance
+      STGRAMS	//  stored_seqno stored_subwallet public_key plugins op cs _111 state_init body wc_n_address _120
+      s1 s4 XCHG	//  stored_seqno stored_subwallet public_key plugins op cs wc_n_address state_init body _111 _120
+      108 STU	//  stored_seqno stored_subwallet public_key plugins op cs wc_n_address state_init body _136
+      s1 s2 XCHG	//  stored_seqno stored_subwallet public_key plugins op cs wc_n_address body state_init _136
+      STREF	//  stored_seqno stored_subwallet public_key plugins op cs wc_n_address body _137
+      STREF	//  stored_seqno stored_subwallet public_key plugins op cs wc_n_address msg
+      ENDC	//  stored_seqno stored_subwallet public_key plugins op cs wc_n_address _139
+      3 PUSHINT	//  stored_seqno stored_subwallet public_key plugins op cs wc_n_address _139 _140=3
+      SENDRAWMSG
+      NEWC	//  stored_seqno stored_subwallet public_key plugins op cs wc_n_address _143
+      s0 s1 s4 XCHG3
+      264 PUSHINT	//  stored_seqno stored_subwallet public_key cs op _143 wc_n_address plugins _146
+      DICTADDB	//  stored_seqno stored_subwallet public_key cs op plugins success?
+      39 THROWIFNOT
+      s0 s2 XCHG	//  stored_seqno stored_subwallet public_key plugins op cs
+    }>	//  stored_seqno stored_subwallet public_key plugins op cs
+    OVER	//  stored_seqno stored_subwallet public_key plugins op cs op
+    2 EQINT	//  stored_seqno stored_subwallet public_key plugins op cs _151
+    IF:<{	//  stored_seqno stored_subwallet public_key plugins op cs
+      264 PUSHINT	//  stored_seqno stored_subwallet public_key plugins op cs _156
+      LDSLICEX	//  stored_seqno stored_subwallet public_key plugins op wc_n_address cs
+      LDGRAMS	//  stored_seqno stored_subwallet public_key plugins op wc_n_address amount cs
+      64 LDU	//  stored_seqno stored_subwallet public_key plugins op wc_n_address amount query_id cs
+      NEWC	//  stored_seqno stored_subwallet public_key plugins op wc_n_address amount query_id cs _166
+      s0 s4 s6 XCPUXC
+      264 PUSHINT	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id _166 wc_n_address plugins _169
+      DICTADDB	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id plugins success?
+      39 THROWIFNOT
+      1852798053 PUSHINT	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id plugins _174=1852798053
+      0 PUSHINT	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id plugins _174=1852798053 _175=0
+      4 PUSHINT	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id plugins _174=1852798053 _175=0 _176=4
+      24 PUSHINT	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id plugins _174=1852798053 _175=0 _176=4 _177=24
+      NEWC	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id plugins _174=1852798053 _175=0 _176=4 _177=24 _178
+      6 STU	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id plugins _174=1852798053 _175=0 _176=4 _180
+      3 STU	//  stored_seqno stored_subwallet public_key cs op wc_n_address amount query_id plugins _174=1852798053 _175=0 _182
+      s0 s6 XCHG2	//  stored_seqno stored_subwallet public_key cs op _175=0 amount query_id plugins _174=1852798053 _182 wc_n_address
+      STSLICER	//  stored_seqno stored_subwallet public_key cs op _175=0 amount query_id plugins _174=1852798053 _183
+      s0 s4 XCHG2	//  stored_seqno stored_subwallet public_key cs op _175=0 _174=1852798053 query_id plugins _183 amount
+      STGRAMS	//  stored_seqno stored_subwallet public_key cs op _175=0 _174=1852798053 query_id plugins _184
+      s1 s4 XCHG	//  stored_seqno stored_subwallet public_key cs op plugins _174=1852798053 query_id _175=0 _184
+      107 STU	//  stored_seqno stored_subwallet public_key cs op plugins _174=1852798053 query_id _198
+      s1 s2 XCHG	//  stored_seqno stored_subwallet public_key cs op plugins query_id _174=1852798053 _198
+      32 STU	//  stored_seqno stored_subwallet public_key cs op plugins query_id _200
+      64 STU	//  stored_seqno stored_subwallet public_key cs op plugins msg
+      ENDC	//  stored_seqno stored_subwallet public_key cs op plugins _203
+      3 PUSHINT	//  stored_seqno stored_subwallet public_key cs op plugins _203 _204=3
+      SENDRAWMSG
+      s0 s2 XCHG	//  stored_seqno stored_subwallet public_key plugins op cs
+    }>	//  stored_seqno stored_subwallet public_key plugins op cs
+    SWAP	//  stored_seqno stored_subwallet public_key plugins cs op
+    3 EQINT	//  stored_seqno stored_subwallet public_key plugins cs _207
+    IF:<{	//  stored_seqno stored_subwallet public_key plugins cs
+      264 PUSHINT	//  stored_seqno stored_subwallet public_key plugins cs _212
+      LDSLICEX	//  stored_seqno stored_subwallet public_key plugins wc_n_address cs
+      LDGRAMS	//  stored_seqno stored_subwallet public_key plugins wc_n_address amount cs
+      64 LDU	//  stored_seqno stored_subwallet public_key plugins wc_n_address amount _318 _317
+      DROP	//  stored_seqno stored_subwallet public_key plugins wc_n_address amount query_id
+      s2 s3 PUXC
+      264 PUSHINT	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount wc_n_address plugins _224
+      DICTDEL	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount plugins success?
+      39 THROWIFNOT
+      1685288050 PUSHINT	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount plugins _229=1685288050
+      0 PUSHINT	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount plugins _229=1685288050 _230=0
+      4 PUSHINT	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount plugins _229=1685288050 _230=0 _231=4
+      24 PUSHINT	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount plugins _229=1685288050 _230=0 _231=4 _232=24
+      NEWC	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount plugins _229=1685288050 _230=0 _231=4 _232=24 _233
+      6 STU	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount plugins _229=1685288050 _230=0 _231=4 _235
+      3 STU	//  stored_seqno stored_subwallet public_key query_id wc_n_address amount plugins _229=1685288050 _230=0 _237
+      s0 s5 XCHG2	//  stored_seqno stored_subwallet public_key query_id _230=0 amount plugins _229=1685288050 _237 wc_n_address
+      STSLICER	//  stored_seqno stored_subwallet public_key query_id _230=0 amount plugins _229=1685288050 _238
+      s0 s3 XCHG2	//  stored_seqno stored_subwallet public_key query_id _230=0 _229=1685288050 plugins _238 amount
+      STGRAMS	//  stored_seqno stored_subwallet public_key query_id _230=0 _229=1685288050 plugins _239
+      s1 s3 XCHG	//  stored_seqno stored_subwallet public_key query_id plugins _229=1685288050 _230=0 _239
+      107 STU	//  stored_seqno stored_subwallet public_key query_id plugins _229=1685288050 _253
+      32 STU	//  stored_seqno stored_subwallet public_key query_id plugins _255
+      s1 s2 XCHG	//  stored_seqno stored_subwallet public_key plugins query_id _255
+      64 STU	//  stored_seqno stored_subwallet public_key plugins msg
+      ENDC	//  stored_seqno stored_subwallet public_key plugins _258
+      3 PUSHINT	//  stored_seqno stored_subwallet public_key plugins _258 _259=3
+      SENDRAWMSG
+    }>ELSE<{
+      DROP	//  stored_seqno stored_subwallet public_key plugins
+    }>
+    s0 s3 XCHG	//  plugins stored_subwallet public_key stored_seqno
+    INC	//  plugins stored_subwallet public_key _262
+    NEWC	//  plugins stored_subwallet public_key _262 _263
+    32 STU	//  plugins stored_subwallet public_key _265
+    s1 s2 XCHG	//  plugins public_key stored_subwallet _265
+    32 STU	//  plugins public_key _267
+    256 STU	//  plugins _269
+    STDICT	//  _270
+    ENDC	//  _271
+    c4 POP
+  }>
+  seqno PROC:<{
+    // 
+    c4 PUSH	//  _0
+    CTOS	//  _1
+    32 PLDU	//  _3
+  }>
+  get_subwallet_id PROC:<{
+    // 
+    c4 PUSH	//  _0
+    CTOS	//  _1
+    32 PUSHINT	//  _1 _2=32
+    SDSKIPFIRST	//  _3
+    32 PLDU	//  _5
+  }>
+  get_public_key PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  _2
+    64 PUSHINT	//  _2 _3=64
+    SDSKIPFIRST	//  cs
+    256 PLDU	//  _6
+  }>
+  is_plugin_installed PROC:<{
+    //  wc addr_hash
+    c4 PUSH	//  wc addr_hash _3
+    CTOS	//  wc addr_hash _4
+    320 PUSHINT	//  wc addr_hash _4 _9
+    SDSKIPFIRST	//  wc addr_hash ds
+    LDDICT	//  wc addr_hash _28 _27
+    DROP	//  wc addr_hash plugins
+    s0 s2 XCHG
+    NEWC	//  plugins addr_hash wc _16
+    8 STI	//  plugins addr_hash _18
+    256 STU	//  plugins _20
+    ENDC	//  plugins _21
+    CTOS	//  plugins _22
+    SWAP
+    264 PUSHINT	//  _22 plugins _25
+    DICTGET
+    NULLSWAPIFNOT	//  _29 _30
+    NIP	//  success?
+  }>
+  get_plugin_list PROC:<{
+    // 
+    PUSHNULL	//  list
+    c4 PUSH	//  list _3
+    CTOS	//  list _4
+    320 PUSHINT	//  list _4 _9
+    SDSKIPFIRST	//  list ds
+    LDDICT	//  list _34 _33
+    DROP	//  list plugins
+    UNTIL:<{
+      264 PUSHINT	//  list plugins _20
+      DICTREMMIN
+      NULLSWAPIFNOT2	//  list _38 _40 _39 _41
+      s2 POP	//  list plugins f wc_n_address
+      OVER	//  list plugins f wc_n_address f
+      IF:<{	//  list plugins f wc_n_address
+        8 LDI	//  list plugins f _24 wc_n_address
+        256 LDU	//  list plugins f _24 _45 _44
+        DROP	//  list plugins f wc addr
+        PAIR	//  list plugins f _30
+        s0 s3 XCHG2	//  f plugins _30 list
+        CONS	//  f plugins list
+        s0 s2 XCHG	//  list plugins f
+      }>ELSE<{
+        DROP	//  list plugins f
+      }>
+      NOT	//  list plugins _32
+    }>	//  list plugins
+    DROP	//  list
+  }>
+}END>c
