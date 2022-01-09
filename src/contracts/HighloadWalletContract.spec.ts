@@ -2,16 +2,15 @@ import { HighloadWalletSource } from './HighloadWalletSource';
 import { SmartContract } from "ton-contract-executor";
 import { createWalletKey } from './tests/createWalletKey';
 import { contractAddress } from 'ton/dist/contracts/sources/ContractSource';
-import { Cell, CellMessage, CommonMessageInfo, EmptyMessage, ExternalMessage, InternalMessage, SendMode, TonClient } from 'ton';
+import { CellMessage, CommonMessageInfo, EmptyMessage, ExternalMessage, InternalMessage, SendMode, TonClient } from 'ton';
 import { HighloadWalletContract } from './HighloadWalletContract';
 import BN from 'bn.js';
-import fs from 'fs';
+import { parseActionsList } from './tests/parseActionsList';
 
 const client = new TonClient({ endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC' });
 
 describe('HighloadWalletContract', () => {
     it('should perform transfers', async () => {
-        // let sourceCode = Cell.fromBoc(fs.readFileSync(__dirname + '/../../contracts/highload-wallet.cell'))[0];
         const walletKey = await createWalletKey();
         const source = HighloadWalletSource.create({ workchain: 0, publicKey: walletKey.publicKey })
         const address = await contractAddress(source);
@@ -39,5 +38,14 @@ describe('HighloadWalletContract', () => {
         }));
         expect(result.type).toBe('success');
         expect(result.exit_code).toBe(0);
+        if (result.type === 'success') {
+            const res = parseActionsList(result.action_list_cell!);
+            expect(res.length).toBe(1);
+            expect(res[0].type).toEqual('send_msg');
+            if (res[0].type === 'send_msg') {
+                expect(res[0].mode).toBe(SendMode.IGNORE_ERRORS);
+                expect(res[0].message.info.dest!.equals(address)).toBe(true);
+            }
+        }
     });
 });
