@@ -3,7 +3,7 @@ import { WalletV4Contract } from "./WalletV4Contract";
 import { WalletV4Source } from "./WalletV4Source";
 import { SmartContract } from "ton-contract-executor";
 import BN from "bn.js";
-import { CellMessage, CommonMessageInfo, EmptyMessage, ExternalMessage, InternalMessage } from "ton";
+import { CellMessage, CommonMessageInfo, EmptyMessage, ExternalMessage, InternalMessage, SendMode } from "ton";
 import { parseActionsList } from "./tests/parseActionsList";
 
 describe('WalletV4Contract', () => {
@@ -27,7 +27,7 @@ describe('WalletV4Contract', () => {
             body: new CommonMessageInfo({
                 body: new CellMessage(await contract.createTransfer({
                     seqno: 0,
-                    sendMode: 0,
+                    sendMode: SendMode.IGNORE_ERRORS,
                     walletId: source.walletId,
                     secretKey: walletKey.secretKey,
                     order: new InternalMessage({
@@ -49,7 +49,7 @@ describe('WalletV4Contract', () => {
             expect(actions.length).toBe(1);
             expect(actions[0].type).toEqual('send_msg');
             if (actions[0].type === 'send_msg') {
-                expect(actions[0].mode).toBe(0);
+                expect(actions[0].mode).toBe(SendMode.IGNORE_ERRORS);
                 expect(actions[0].message.info.dest!.equals(contract.address)).toBe(true);
                 expect(actions[0].message.info.type).toEqual('internal');
                 if (actions[0].message.info.type === 'internal') {

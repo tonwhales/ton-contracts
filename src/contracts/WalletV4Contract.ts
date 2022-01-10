@@ -41,10 +41,10 @@ class WalletV4SigningMessage implements Message {
             cell.bits.writeUint(this.timeout, 32);
         }
         cell.bits.writeUint(this.seqno, 32);
-        cell.bits.writeUint8(this.sendMode);
         cell.bits.writeUint8(0); // Simple order
 
         // Write order
+        cell.bits.writeUint8(this.sendMode);
         let orderCell = new Cell();
         this.order.writeTo(orderCell);
         cell.refs.push(orderCell);
