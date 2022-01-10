@@ -1,8 +1,7 @@
 import { HighloadWalletSource } from './HighloadWalletSource';
 import { SmartContract } from "ton-contract-executor";
 import { createWalletKey } from './tests/createWalletKey';
-import { contractAddress } from 'ton/dist/contracts/sources/ContractSource';
-import { CellMessage, CommonMessageInfo, EmptyMessage, ExternalMessage, InternalMessage, SendMode, TonClient } from 'ton';
+import { CellMessage, CommonMessageInfo, contractAddress, EmptyMessage, ExternalMessage, InternalMessage, SendMode, TonClient } from 'ton';
 import { HighloadWalletContract } from './HighloadWalletContract';
 import BN from 'bn.js';
 import { parseActionsList } from './tests/parseActionsList';

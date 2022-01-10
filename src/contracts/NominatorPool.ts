@@ -1,5 +1,4 @@
-import { Address, Contract, TonClient, ContractSource, ExternalMessage, CommonMessageInfo, StateInit } from "ton";
-import { contractAddress } from "ton/dist/contracts/sources/ContractSource";
+import { Address, Contract, TonClient, ContractSource, ExternalMessage, CommonMessageInfo, StateInit, contractAddress } from "ton";
 import { NominatorPoolSource } from "./NominatorPoolSource";
 
 export class NominatorPool implements Contract {

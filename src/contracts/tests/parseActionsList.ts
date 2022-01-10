@@ -1,5 +1,4 @@
-import { Cell, RawCurrencyCollection, RawMessage, Slice } from "ton";
-import { readCurrencyCollection, readMessage } from "./messageUtils";
+import { Cell, parseCurrencyCollection, parseMessage, RawCurrencyCollection, RawMessage, Slice } from "ton";
 
 // out_list_empty$_ = OutList 0;
 // out_list$_ {n:#} prev:^(OutList n) action:OutAction
@@ -50,13 +49,13 @@ export function parseActionsList(actions: Slice | Cell): OutAction[] {
         outAction = {
             type: 'send_msg',
             mode: slice.readUint(8).toNumber(),
-            message: readMessage(slice.readRef())
+            message: parseMessage(slice.readRef())
         }
     } else if (magic === 0x36e6b809) {
         outAction = {
             type: 'reserve_currency',
             mode: slice.readUint(8).toNumber(),
-            currency: readCurrencyCollection(slice)
+            currency: parseCurrencyCollection(slice)
         }
     } else {
         outAction = { type: 'unknown' }

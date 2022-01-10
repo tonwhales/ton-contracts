@@ -1,6 +1,5 @@
 import { randomBytes } from "crypto";
-import { Address, Contract, ContractSource, TonClient } from "ton";
-import { contractAddress } from "ton/dist/contracts/sources/ContractSource";
+import { Address, Contract, contractAddress, ContractSource, TonClient } from "ton";
 import { LoggerContractSource } from "./LoggerContractSource";
 
 export class LoggerContract implements Contract {
