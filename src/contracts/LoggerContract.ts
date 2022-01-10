@@ -1,5 +1,5 @@
-import { randomBytes } from "crypto";
 import { Address, Contract, contractAddress, ContractSource, TonClient } from "ton";
+import { getSecureRandomBytes } from "ton-crypto";
 import { LoggerContractSource } from "./LoggerContractSource";
 
 export class LoggerContract implements Contract {
@@ -9,7 +9,7 @@ export class LoggerContract implements Contract {
     }
 
     static async createRandom(client: TonClient, workchain: number = 0) {
-        return LoggerContract.create(client, LoggerContractSource.create({ seed: randomBytes(64), workchain }));
+        return LoggerContract.create(client, LoggerContractSource.create({ seed: await getSecureRandomBytes(64), workchain }));
     }
 
     readonly source: ContractSource;
