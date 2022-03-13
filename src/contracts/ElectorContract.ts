@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, BitString, Cell, CellMessage, Contract, ContractSource, Message, parseDict, RawMessage, TonClient, UnknownContractSource } from "ton";
+import { Address, ADNLAddress, BitString, Cell, CellMessage, Contract, ContractSource, Message, parseDict, RawMessage, TonClient, UnknownContractSource } from "ton";
 import { sign, signVerify } from "ton-crypto";
 
 export class ElectorContract implements Contract {
@@ -12,13 +12,10 @@ export class ElectorContract implements Contract {
         validator: Address,
         electionTime: number,
         maxFactor: number,
-        adnlAddress: Buffer
+        adnlAddress: ADNLAddress
     }) {
         if (args.validator.workChain !== -1) {
             throw Error('Only masterchain could participate in elections');
-        }
-        if (args.adnlAddress.length !== 32) {
-            throw Error('Invalid ADNL address');
         }
 
         const res = BitString.alloc(1024);
@@ -26,7 +23,7 @@ export class ElectorContract implements Contract {
         res.writeUint(args.electionTime, 32);
         res.writeUint(Math.floor(args.maxFactor * 65536), 32);
         res.writeBuffer(args.validator.hash);
-        res.writeBuffer(args.adnlAddress);
+        res.writeBuffer(args.adnlAddress.address);
         return res.getTopUppedArray();
     }
 
@@ -47,7 +44,7 @@ export class ElectorContract implements Contract {
         validator: Address,
         electionTime: number,
         maxFactor: number,
-        adnlAddress: Buffer,
+        adnlAddress: ADNLAddress,
         publicKey: Buffer,
         signature: Buffer,
         queryId: BN
@@ -62,7 +59,7 @@ export class ElectorContract implements Contract {
         cell.bits.writeBuffer(args.publicKey);
         cell.bits.writeUint(args.electionTime, 32);
         cell.bits.writeUint(Math.floor(args.maxFactor * 65536), 32);
-        cell.bits.writeBuffer(args.adnlAddress);
+        cell.bits.writeBuffer(args.adnlAddress.address);
         const sig = new Cell();
         sig.bits.writeBuffer(args.signature);
         cell.refs.push(sig);
@@ -72,11 +69,80 @@ export class ElectorContract implements Contract {
     /**
      * Create recover stake message
      */
-    static createRecoverStakeMessage(args: { validator: Address, queryId: BN }) {
+    static createRecoverStakeMessage(args: { queryId: BN }) {
         const res = BitString.alloc(1024);
         res.writeBuffer(Buffer.from('47657424', 'hex'));
         res.writeUint(args.queryId, 64);
         return res.getTopUppedArray();
+    }
+
+    /**
+     * Parsing complaints
+     * @param src source object
+     */
+    static parseComplaints(src: any[]) {
+        let data = src[0][1].elements;
+        let results: {
+            id: BN,
+            publicKey: Buffer,
+            createdAt: number,
+            severity: number,
+            paid: BN,
+            suggestedFine: BN,
+            suggestedFinePart: BN,
+            rewardAddress: Address,
+            votes: number[],
+            remainingWeight: BN,
+            vsetId: BN
+        }[] = [];
+        for (let record of data) {
+            let elements = record.tuple.elements;
+            let id = new BN(elements[0].number.number as string, 10);
+            let complaint = elements[1].tuple.elements[0].tuple.elements;
+            let votersList = elements[1].tuple.elements[1].list.elements;
+            let vsetIdRaw = elements[1].tuple.elements[2];
+            let weightRemaining = elements[1].tuple.elements[3];
+
+            let publicKeyRaw = new BN(complaint[0].number.number, 10).toString('hex');
+            while (publicKeyRaw.length < 64) {
+                publicKeyRaw = '0' + publicKeyRaw;
+            }
+            let publicKey = Buffer.from(publicKeyRaw, 'hex');
+            let description = Cell.fromBoc(Buffer.from(complaint[1].cell.bytes, 'base64'))[0];
+            let createdAt = parseInt(complaint[2].number.number, 10);
+            let severity = parseInt(complaint[3].number.number, 10);
+            let rewardAddressRaw = new BN(complaint[4].number.number, 10).toString('hex');
+            while (rewardAddressRaw.length < 64) {
+                rewardAddressRaw = '0' + rewardAddressRaw;
+            }
+            let rewardAddress = new Address(-1, Buffer.from(rewardAddressRaw, 'hex'));
+            let paid = new BN(complaint[5].number.number, 10);
+            let suggestedFine = new BN(complaint[6].number.number, 10);
+            let suggestedFinePart = new BN(complaint[7].number.number, 10);
+
+            let votes: number[] = [];
+            for (let v of votersList) {
+                votes.push(parseInt(v.number.number, 10));
+            }
+
+            let remainingWeight = new BN(weightRemaining.number.number, 10);
+            let vsetId = new BN(vsetIdRaw.number.number, 10);
+
+            results.push({
+                id,
+                publicKey,
+                createdAt,
+                severity,
+                paid,
+                suggestedFine,
+                suggestedFinePart,
+                rewardAddress,
+                votes,
+                remainingWeight,
+                vsetId
+            });
+        }
+        return results;
     }
 
     // Please note that we are NOT loading address from config to avoid mistake and send validator money to a wrong contract
@@ -171,5 +237,10 @@ export class ElectorContract implements Contract {
         let res = await this.client.callGetMethod(this.address, 'active_election_id');
         let id = parseInt(res.stack[0][1], 16);
         return id > 0 ? id : null;
+    }
+
+    async getComplaints(electionId: number) {
+        let res = await this.client.callGetMethod(this.address, 'list_complaints', [['num', electionId]]);
+        return ElectorContract.parseComplaints(res.stack);
     }
 }
