@@ -1,6 +1,6 @@
 {
   "name": "ton-contracts",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "main": "dist/index.js",
   "repository": "https://github.com/tonwhales/ton-contracts.git",
   "author": "Steve Korshakov <steve@korshakov.com>",
