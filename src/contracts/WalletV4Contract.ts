@@ -8,10 +8,10 @@ class WalletV4SigningMessage implements Message {
     readonly timeout: number;
     readonly seqno: number;
     readonly walletId: number;
-    readonly order: Message;
+    readonly order: Message | null;
     readonly sendMode: number;
 
-    constructor(args: { timeout?: Maybe<number>, seqno: Maybe<number>, walletId?: number, sendMode: number, order: Message }) {
+    constructor(args: { timeout?: Maybe<number>, seqno: Maybe<number>, walletId?: number, sendMode: number, order: Message | null }) {
         this.order = args.order;
         this.sendMode = args.sendMode;
         if (args.timeout !== undefined && args.timeout !== null) {
@@ -44,17 +44,19 @@ class WalletV4SigningMessage implements Message {
         cell.bits.writeUint8(0); // Simple order
 
         // Write order
-        cell.bits.writeUint8(this.sendMode);
-        let orderCell = new Cell();
-        this.order.writeTo(orderCell);
-        cell.refs.push(orderCell);
+        if (this.order) {
+            cell.bits.writeUint8(this.sendMode);
+            let orderCell = new Cell();
+            this.order.writeTo(orderCell);
+            cell.refs.push(orderCell);
+        }
     }
 }
 
 export class WalletV4Contract implements Contract {
 
-    static async create(source: WalletV4Source) {
-        let address = await contractAddress(source);
+    static create(source: WalletV4Source) {
+        let address = contractAddress(source);
         return new WalletV4Contract(address, source);
     }
 
@@ -79,7 +81,7 @@ export class WalletV4Contract implements Contract {
         seqno: number,
         sendMode: number,
         walletId: number,
-        order: InternalMessage,
+        order: InternalMessage | null,
         secretKey?: Maybe<Buffer>,
         timeout?: Maybe<number>
     }) {
@@ -97,7 +99,7 @@ export class WalletV4Contract implements Contract {
         signingMessage.writeTo(cell);
         let signature: Buffer;
         if (args.secretKey) {
-            signature = sign(await cell.hash(), args.secretKey);
+            signature = sign(cell.hash(), args.secretKey);
         } else {
             signature = Buffer.alloc(64);
         }
