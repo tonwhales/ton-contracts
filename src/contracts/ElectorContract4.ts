@@ -220,27 +220,46 @@ export class ElectorContract4 implements Contract {
         return elections;
     }
 
-    // async getElectionEntities(block: number) {
-    //     let res = await this.client.callGetMethod(this.address, 'participant_list_extended');
-    //     let startWorkTime = parseInt(res.stack[0][1], 16);
-    //     let endElectionsTime = parseInt(res.stack[1][1], 16);
-    //     let minStake = parseInt(res.stack[2][1], 16);
-    //     let allStakes = parseInt(res.stack[3][1], 16);
-    //     let electionEntries = res.stack[4][1].elements;
-    //     let entities: { pubkey: Buffer, stake: BN, address: Address, adnl: Buffer }[] = [];
-    //     for (let e of electionEntries) {
-    //         let pubkey = Buffer.from(new BN(e.tuple.elements[0].number.number).toString('hex'), 'hex');
-    //         let stake = new BN(e.tuple.elements[1].tuple.elements[0].number.number);
-    //         let addrraw = new BN(e.tuple.elements[1].tuple.elements[2].number.number).toString('hex');
-    //         while (addrraw.length < 64) {
-    //             addrraw = '0' + addrraw;
-    //         }
-    //         let address = new Address(-1, Buffer.from(addrraw, 'hex'));
-    //         let adnl = Buffer.from(new BN(e.tuple.elements[1].tuple.elements[3].number.number).toString('hex'), 'hex');
-    //         entities.push({ pubkey, stake: stake, address, adnl });
-    //     }
-    //     return { minStake, allStakes, endElectionsTime, startWorkTime, entities };
-    // }
+    async getElectionEntities(block: number) {
+
+        //
+        // NOTE: this method doesn't call get method since for some reason it doesn't work
+        //
+
+        let account = await this.client.getAccount(block, this.address);
+        if (account.account.state.type !== 'active') {
+            throw Error('Unexpected error');
+        }
+
+        let cell = Cell.fromBoc(Buffer.from(account.account.state.data, 'base64'))[0];
+        let cs = cell.beginParse();
+        if (!cs.readBit()) {
+            return null;
+        }
+        // (es~load_uint(32), es~load_uint(32), es~load_grams(), es~load_grams(), es~load_dict(), es~load_int(1), es~load_int(1));
+        let sc = cs.readRef();
+        let startWorkTime = sc.readUintNumber(32);
+        let endElectionsTime = sc.readUintNumber(32);
+        let minStake = sc.readCoins();
+        let allStakes = sc.readCoins();
+        // var (stake, time, max_factor, addr, adnl_addr) = (cs~load_grams(), cs~load_uint(32), cs~load_uint(32), cs~load_uint(256), cs~load_uint(256));
+        let entitiesData = sc.readOptDict(256, (s) => ({ stake: s.readCoins(), time: s.readUintNumber(32), maxFactor: s.readUintNumber(32), addr: s.readUint(256), adnl: s.readUint(256) }));
+        let failed = sc.readBit();
+        let finished = sc.readBit();
+
+        let entities: { pubkey: Buffer, stake: BN, address: Address, adnl: Buffer }[] = [];
+        if (entitiesData) {
+            for (let k of entitiesData) {
+                let pubkey = Buffer.from(new BN(k[0], 10).toString('hex', 32), 'hex');
+                let stake = k[1].stake;
+                let address = new Address(-1, Buffer.from(k[1].addr.toString('hex', 32), 'hex'));
+                let adnl = Buffer.from(k[1].adnl.toString('hex', 32), 'hex');
+                entities.push({ pubkey, stake: stake, address, adnl });
+            }
+        }
+        
+        return { minStake, allStakes, endElectionsTime, startWorkTime, entities };
+    }
 
     async getActiveElectionId(block: number) {
         let res = await this.client.runMethod(block, this.address, 'active_election_id');
@@ -254,6 +273,6 @@ export class ElectorContract4 implements Contract {
 
     // async getComplaints(block: number, electionId: number) {
     //     let res = await this.client.callGetMethod(this.address, 'list_complaints', [['num', electionId]]);
-    //     return ElectorContract.parseComplaints(res.stack);
+    //     return ElectorContract4.parseComplaints(res.stack);
     // }
 }
